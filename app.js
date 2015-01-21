@@ -1,11 +1,118 @@
-var diff = resemble(file).compareTo(file2).ignoreColors().onComplete(function(data){
-    console.log(data);
-    /*
-    {
-      misMatchPercentage : 100, // %
-      isSameDimensions: true, // or false
-      dimensionDifference: { width: 0, height: -1 }, // defined if dimensions are not the same
-      getImageDataUrl: function(){}
-    }
-    */
+// var connect = require('connect');
+// var serveStatic = require('serve-static');
+// connect().use(serveStatic("./")).listen(8080);
+
+// object.watch
+if (!Object.prototype.watch) {
+	Object.defineProperty(Object.prototype, "watch", {
+		  enumerable: false
+		, configurable: true
+		, writable: false
+		, value: function (prop, handler) {
+			var
+			  oldval = this[prop]
+			, newval = oldval
+			, getter = function () {
+				return newval;
+			}
+			, setter = function (val) {
+				oldval = newval;
+				return newval = handler.call(this, prop, oldval, val);
+			}
+			;
+			
+			if (delete this[prop]) { // can't watch constants
+				Object.defineProperty(this, prop, {
+					  get: getter
+					, set: setter
+					, enumerable: true
+					, configurable: true
+				});
+			}
+		}
+	});
+}
+ 
+// object.unwatch
+if (!Object.prototype.unwatch) {
+	Object.defineProperty(Object.prototype, "unwatch", {
+		  enumerable: false
+		, configurable: true
+		, writable: false
+		, value: function (prop) {
+			var val = this[prop];
+			delete this[prop]; // remove accessors
+			this[prop] = val;
+		}
+	});
+}
+
+var http = require('http');
+
+httpServer = http.createServer(function(req,res) {
+  console.log('une nouvelle connexion');
+});
+
+httpServer.listen(8080);
+
+var io = require('socket.io').listen(httpServer);
+
+var players = {}
+var playersCount = {};
+playersCount.v = 0;
+
+function count(object)
+{
+	var count = 0;
+	for (var k in object) {
+	    if (object.hasOwnProperty(k)) {
+	       ++count;
+	    }
+	}	
+	return count;
+}
+
+io.sockets.on('connect',function(socket) {
+	console.log('Nouveau utilisateur');
+	players[socket.id] = {};
+	playersCount.v = count(players);
+
+	socket.on('drawed',function(data){
+		io.sockets.emit('drawresults',data);
+	});
+
+
+	socket.on('disconnect', function(){
+      delete players[socket.id];
+      playersCount.v = count(players);
+  });
+});
+
+var interval = undefined;
+
+playersCount.watch('v', function (id,oldval,val) {
+	console.log(oldval + " " + val);
+	if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
+	{
+		// new game
+		interval = setInterval(function(){
+			console.log("start")
+			io.sockets.emit('start',parseInt((Math.random()+1).toFixed()));
+			setTimeout(function()
+			{
+				console.log("compare");
+				io.sockets.emit('compare');
+				
+			},5000);
+		}, 10000);
+	}
+	else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
+	{
+		// new player wait for new game
+	}
+	else
+	{
+		clearInterval(interval);
+	}
+	return val;
 });

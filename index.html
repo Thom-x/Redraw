@@ -1,25 +1,90 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
-	<link rel="stylesheet" href="style.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>Redraw</title>
+	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="#">Redraw</a>
+	    </div>
 
-	<canvas id="canvas1" width="100px" height="100px"></canvas>
-	<canvas id="canvas2" width="100px" height="100px"></canvas>
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      <ul class="nav navbar-nav">
+	        <li class="active"><a href="#">Join <span class="sr-only">(current)</span></a></li>
+<!-- 	        <li class="dropdown">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+	          <ul class="dropdown-menu" role="menu">
+	            <li><a href="#">Action</a></li>
+	            <li><a href="#">Another action</a></li>
+	            <li><a href="#">Something else here</a></li>
+	            <li class="divider"></li>
+	            <li><a href="#">Separated link</a></li>
+	            <li class="divider"></li>
+	            <li><a href="#">One more separated link</a></li>
+	          </ul>
+	        </li> -->
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
 
-	<button id="compare">Compare !</button>
-
-	<div id="image-diff"></div>
-	<div id="result"></div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6 text-center">
+				<div class="col-md-6">
+					<canvas id="canvas1" width="100px" height="100px"></canvas>
+				</div>
+				<div class="col-md-6">
+					<canvas id="canvas2" width="100px" height="100px"></canvas>
+				</div>
+			</div>
+			<div class="col-md-6 text-center">
+				<div id="image-diff"></div>
+				<div id="result"></div>
+			</div>
+		</div>
+	</div>
 
 	<script src="node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="node_modules/resemblejs/resemble.js"></script>
 	<script src="js/canvas-to-blob.min.js"></script>
+	<script src="http://localhost:8080/socket.io/socket.io.js"></script>
 	<script>
 	$(function() {
 
+		var socket = io.connect('http://localhost:8080');
+
+		socket.on('drawresults', function(data) {
+			var diffImage = new Image();
+			diffImage.src = data.getImageDataUrl;
+			$('#image-diff').append(diffImage);
+			$('#result').html("Match at : " + ((1-data.misMatchPercentage/100)*100).toFixed() + "%");
+		});
+
+		socket.on('compare',function(){
+			$('#image-diff').html("Resultats");
+			compare();
+		});
+
+		socket.on('start',function(index){
+			$('#image-diff').html('');
+			init($('#canvas2'),'#FFF');
+			fillRef(index);
+		});
 
 		/*==========  Resemble Options  ==========*/
 		resemble.outputSettings({
@@ -34,31 +99,33 @@
 		});
 
 		/*==========  Ref image  ==========*/
-		var canvas = document.getElementById('canvas1');
-		var ctx = canvas.getContext('2d');
-		ctx.fillStyle = "white";
-      	ctx.fillRect(0,0,100,100);
-		ctx.fillStyle = "red";
-		switch(parseInt((Math.random()*2).toFixed()))
+		var fillRef = function(index)
 		{
-			case 1:
-      			ctx.fillRect(25,25,50,50);
-			break;
-			case 2:
-				ctx.beginPath();
-				ctx.moveTo(10,10);
-				ctx.lineTo(90,10);
-				ctx.lineTo(50,90);
-				ctx.fill();
-			break;
-			case 3:
-			break;
-			case 4:
-			break;
-			case 5:
-			break;
+			var canvas = document.getElementById('canvas1');
+			var ctx = canvas.getContext('2d');
+			ctx.fillStyle = "white";
+	      	ctx.fillRect(0,0,100,100);
+			ctx.fillStyle = "red";
+			switch(index)
+			{
+				case 1:
+	      			ctx.fillRect(25,25,50,50);
+				break;
+				case 2:
+					ctx.beginPath();
+					ctx.moveTo(10,10);
+					ctx.lineTo(90,10);
+					ctx.lineTo(50,90);
+					ctx.fill();
+				break;
+				case 3:
+				break;
+				case 4:
+				break;
+				case 5:
+				break;
+			}
 		}
-
       	/*==========  Draw function  ==========*/
       	function init(container, fillColor) {
 	        var canvas = container[0];
@@ -96,59 +163,45 @@
 	            canvas.isDrawing = false;
 	        };
 	    }
-    	
-    	init($('#canvas2'),'#FFF');
 
 		/*==========  Comparison function  ==========*/
-		var img1 = null;
-		var img2 = null;
-		var convert1 = function()
+		var compare = function()
 		{
-			var canvas = document.getElementById('canvas1');
-			if (canvas.toBlob) {
-				var img = new Image();
-				img.src = canvas.toDataURL();
-				img.id = "img1";
-				//document.body.appendChild(img);
-			    canvas.toBlob(
-			        function (blob1) {
-						img1 = blob1;
-						convert2();
-			        },
-			        'image/jpeg'
-			    );
-			}	
-		};
+			var img1 = null;
+			var img2 = null;
+			var convert1 = function()
+			{
+				var canvas = document.getElementById('canvas1');
+				if (canvas.toBlob) {
+				    canvas.toBlob(
+				        function (blob1) {
+							img1 = blob1;
+							convert2();
+				        },
+				        'image/jpeg'
+				    );
+				}	
+			};
 
-		var convert2 = function()
-		{
-			var canvas2 = document.getElementById('canvas2');
-			if (canvas2.toBlob) {
-				var img = new Image();
-				img.src = canvas2.toDataURL();
-				img.id = "img2";
-				//document.body.appendChild(img);
-			    canvas2.toBlob(
-			        function (blob2) {
-						img2 = blob2;
-						resembleControl = resemble(img1).compareTo(img2).ignoreAntialiasing().onComplete(onComplete);
-			        },
-			        'image/jpeg'
-			    );
+			var convert2 = function()
+			{
+				var canvas2 = document.getElementById('canvas2');
+				if (canvas2.toBlob) {
+				    canvas2.toBlob(
+				        function (blob2) {
+							img2 = blob2;
+							resembleControl = resemble(img1).compareTo(img2).ignoreAntialiasing().onComplete(onComplete);
+				        },
+				        'image/jpeg'
+				    );
+				}
 			}
+			convert1();
 		}
 
-		$("#compare").click(function(){
-			convert1();
-		})
-
 		function onComplete(data){
-			console.log(data);
-			var diffImage = new Image();
-			diffImage.src = data.getImageDataUrl();
-
-			$('#image-diff').html(diffImage);
-			$('#result').html("Match at : " + ((1-data.misMatchPercentage/100)*100).toFixed() + "%");
+			data.getImageDataUrl = data.getImageDataUrl();
+			socket.emit('drawed', data);
 		};
 	});
 	</script>
