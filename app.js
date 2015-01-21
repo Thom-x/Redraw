@@ -1,5 +1,15 @@
 var connect = require('connect');
 var serveStatic = require('serve-static');
+
+var players = {}
+var playersCount = {};
+var playing = false;
+var interval = undefined;
+var _modelCount = 4;
+
+var _drawTime = 5000;
+var _compareTime = 5000;
+
 connect().use(serveStatic("./")).listen(80);
 
 // object.watch
@@ -57,12 +67,7 @@ httpServer.listen(8080);
 
 var io = require('socket.io').listen(httpServer);
 
-
-var players = {}
-var playersCount = {};
 playersCount.v = 0;
-var interval = undefined;
-
 function count(object)
 {
 	var count = 0;
@@ -78,9 +83,17 @@ io.sockets.on('connect',function(socket) {
 	console.log('New player');
 	players[socket.id] = {};
 	players[socket.id].nickname = "Guest";
+	if(playing)
+	{
+		socket.emit('wait');
+	}
+	else
+	{
+		socket.emit('stop');
+	}
+
 	playersCount.v = count(players);
 
-	socket.emit('stop');
 
 	socket.on('drawed',function(data){
 		data.nickname = players[socket.id].nickname;
@@ -103,13 +116,17 @@ io.sockets.on('connect',function(socket) {
 
 playersCount.watch('v', function (id,oldval,val) {
 	console.log("Game change from " + oldval + " player to " + val + " player");
+	io.sockets.emit('playerChange',val);
 	if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
 	{
-		startGame();
-		// new game
-		interval = setInterval(function(){
+		if(interval == undefined)
+		{
 			startGame();
-		}, 10000);
+			// new game
+			interval = setInterval(function(){
+				startGame();
+			}, _drawTime + _compareTime);
+		}
 	}
 	else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
 	{
@@ -119,6 +136,8 @@ playersCount.watch('v', function (id,oldval,val) {
 	{
 		clearInterval(interval);
 		interval = undefined;
+		playing = false;
+		console.log("Stoping game ...")
 		io.sockets.emit('stop');
 	}
 	return val;
@@ -126,13 +145,13 @@ playersCount.watch('v', function (id,oldval,val) {
 
 var startGame = function()
 {
-	io.sockets.emit('start',parseInt((Math.random()+1).toFixed()),450);
+	playing = true;
 	console.log("Starting a new game ...")
-	io.sockets.emit('start',parseInt((Math.random()+1).toFixed()),450);
+	io.sockets.emit('start',parseInt((Math.random()*(_modelCount-1)+1).toFixed()),_drawTime/10-50);
 	setTimeout(function()
 	{
 		console.log("Compare drawings ");
 		io.sockets.emit('compare');
 		
-	},5000);
+	},_drawTime);
 }
