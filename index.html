@@ -1,0 +1,74 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div id="dropzone1" class="dropzone"></div>
+	<div id="dropzone2" class="dropzone"></div>
+	<script src="node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="node_modules/resemblejs/resemble.js"></script>
+	<script>
+	var $target = $('#drop-zone');
+
+	function dropZone($target, onDrop){
+		$target.
+			bind('dragover', function(){
+				$target.addClass( 'drag-over' );
+				return false;
+			}).
+			bind("dragend", function () {
+				$target.removeClass( 'drag-over' );
+				return false;
+			}).
+			bind("dragleave", function () {
+				$target.removeClass( 'drag-over' );
+				return false;
+			}).
+			bind("drop", function(event) {
+				var file = event.originalEvent.dataTransfer.files[0];
+
+				event.stopPropagation();
+				event.preventDefault();
+
+				$target.removeClass( 'drag-over' );
+
+				var droppedImage = new Image();
+				var fileReader = new FileReader();
+
+				fileReader.onload = function (event) {
+					droppedImage.src = event.target.result;
+					$target.html(droppedImage);
+				};
+
+				fileReader.readAsDataURL(file);
+
+				onDrop(file);
+			});
+	};
+
+	var file1;
+	var file2;
+	var resembleControl;
+
+	dropZone($('#dropzone1'), function(file){
+		file1 = file;
+		if(file2){
+			resembleControl = resemble(file).compareTo(file2).onComplete(onComplete);
+		}
+	});
+
+	dropZone($('#dropzone2'), function(file){
+		file2 = file;
+		if(file1){
+			resembleControl = resemble(file).compareTo(file1).onComplete(onComplete);
+		}
+	});
+
+	function onComplete(data){
+		console.log(data);
+	};
+	</script>
+</body>
+</html>
