@@ -103,7 +103,7 @@
 
 		socket.on('drawresults', function(data) {
 			data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
-			$("#drawing").hide();
+			disable($('#canvas2'),'#FFF');
 			$.get('templates/result.mst', function(template) {
 				var rendered = Mustache.render(template,data);
 				$('#result').append(rendered);
@@ -124,7 +124,6 @@
 
 		socket.on('start',function(index,time){
 			playing = true;
-			$("#drawing").show();
 			$('#game').show();
 			$('#message').hide();
 			$('#result').html('');
@@ -203,6 +202,18 @@
 	        };
 	        canvas.node.onmouseup = function(e) {
 	            canvas.isDrawing = false;
+	        };
+	    }
+
+	    function disable(container, fillColor) {
+	        var canvas = container[0];
+	        canvas.node = container[0];
+	        // bind mouse events
+	        canvas.node.onmousemove = function(e) {
+	        };
+	        canvas.node.onmousedown = function(e) {
+	        };
+	        canvas.node.onmouseup = function(e) {
 	        };
 	    }
 
