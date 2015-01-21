@@ -4,13 +4,27 @@ module.exports = function(grunt) {
         nodewebkit: {
             options: {
                 build_dir: './dist',
+                winIco: './images/ico.ico',
+                macIcns: './images/ico.ico',
                 // choose what platforms to compile for here
                 mac: true,
                 win: true,
                 linux32: true,
                 linux64: true
             },
-            src: ['package.json','./index.html','./js/**/*','./templates/**/*','./images/**/*','./css/**/*','./node_modules/bootstrap/**/*','./node_modules/jquery/**/*','./node_modules/mustache/**/*','./node_modules/resemblejs/**/*']
+            src: [
+            'package.json',
+            './index.html',
+            './js/**/*',
+            './templates/**/*',
+            './images/**/*',
+            './css/**/*',
+            './node_modules/bootstrap/dist/css/bootstrap.min.css',
+            './node_modules/bootstrap/dist/fonts/**/*',
+            './node_modules/jquery/dist/jquery.min.js',
+            './node_modules/bootstrap/dist/js/bootstrap.min.js',
+            './node_modules/resemblejs/resemble.js',
+            './node_modules/mustache/mustache.min.js']
         }
     })
 
