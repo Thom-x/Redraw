@@ -54,6 +54,7 @@
 					<div class="col-md-6">
 						<h4>Reference :</h4>
 						<canvas id="canvas1" width="100px" height="100px"></canvas>
+						<img src="" alt="" id="img1">
 					</div>
 					<div class="col-md-6" id="drawing">
 						<h4>Your drawing :</h4>
@@ -146,6 +147,7 @@
 		/*==========  Ref image  ==========*/
 		var fillRef = function(index)
 		{
+			$("#img1").attr("src","model.bmp");
 			var canvas = document.getElementById('canvas1');
 			var ctx = canvas.getContext('2d');
 			ctx.fillStyle = "white";
@@ -210,22 +212,35 @@
 	    }
 
 		/*==========  Comparison function  ==========*/
+		function base64img(i){
+			var canvas = document.getElementById('canvas1');
+			canvas.width = i.width;
+			canvas.height = i.height;
+			var context = canvas.getContext("2d");
+			context.drawImage(i, 0, 0);
+			var blob = canvas.toDataURL("image/png");
+			return blob;
+		}
+
 		var compare = function()
 		{
 			var img1 = null;
 			var img2 = null;
 			var convert1 = function()
 			{
-				var canvas = document.getElementById('canvas1');
-				if (canvas.toBlob) {
-				    canvas.toBlob(
-				        function (blob1) {
-							img1 = blob1;
-							convert2();
-				        },
-				        'image/jpeg'
-				    );
-				}	
+				img1 = base64img(document.getElementById('img1'));
+				convert2();
+				// var canvas = document.getElementById('canvas1');
+				// if (canvas.toBlob) {
+				//     canvas.toBlob(
+				//         function (blob1) {
+				// 			img1 = blob1;
+				// 			img1 = base64img(document.getElementById('img1'));
+				// 			convert2();
+				//         },
+				//         'image/jpeg'
+				//     );
+				// }	
 			};
 
 			var convert2 = function()
