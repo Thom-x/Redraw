@@ -19,11 +19,15 @@
 	      </button>
 	      <a class="navbar-brand" href="#">Redraw</a>
 	    </div>
-
+		<form class="navbar-form navbar-left" role="search">
+	        <div class="form-group">
+	        	<input id="nickname" type="text" class="form-control" placeholder="Nickname">
+	        </div>
+      	</form>
 	    <!-- Collect the nav links, forms, and other content for toggling -->
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <ul class="nav navbar-nav">
-	        <li class="active"><a href="#">Join <span class="sr-only">(current)</span></a></li>
+	        <!-- <li class="active"><a href="#">Join <span class="sr-only">(current)</span></a></li> -->
 <!-- 	        <li class="dropdown">
 	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
 	          <ul class="dropdown-menu" role="menu">
@@ -42,37 +46,64 @@
 	</nav>
 
 	<div class="container-fluid">
+		<div id="counter"></div>
 		<div class="row">
+			<div id="message" class="col-md-12 text-center"><h2>Waiting for players ...</h2></div>
 			<div class="col-md-6 text-center">
-				<div class="col-md-6">
-					<canvas id="canvas1" width="100px" height="100px"></canvas>
-				</div>
-				<div class="col-md-6">
-					<canvas id="canvas2" width="100px" height="100px"></canvas>
+				<div id="game" class="col-md-12">
+					<div class="col-md-6">
+						<h4>Reference :</h4>
+						<canvas id="canvas1" width="100px" height="100px"></canvas>
+					</div>
+					<div class="col-md-6" id="drawing">
+						<h4>Your drawing :</h4>
+						<canvas id="canvas2" width="100px" height="100px"></canvas>
+						<h4 id="timer"></h4>
+					</div>
 				</div>
 			</div>
-			<div class="col-md-6 text-center">
-				<div id="image-diff"></div>
-				<div id="result"></div>
+				<div id="result" class="col-md-6 text-center">
 			</div>
 		</div>
 	</div>
-
 	<script src="node_modules/jquery/dist/jquery.min.js"></script>
 	<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="node_modules/resemblejs/resemble.js"></script>
+	<script src="node_modules/mustache/mustache.min.js"></script>
 	<script src="js/canvas-to-blob.min.js"></script>
 	<script src="http://localhost:8080/socket.io/socket.io.js"></script>
 	<script>
-	$(function() {
 
+var counter;
+function timer() {
+    if (count <= 0) {
+        clearInterval(counter);
+        return;
+    }
+    count--;
+    displayCount(count);
+}
+
+function displayCount(count) {
+    var res = count / 100;
+    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs";
+}
+
+	$(function() {
 		var socket = io.connect('http://localhost:8080');
 
+		$("#nickname").on('input',function(){
+			var nickname = $(this).val();
+			socket.emit('nickname',nickname)
+		})
+
 		socket.on('drawresults', function(data) {
-			var diffImage = new Image();
-			diffImage.src = data.getImageDataUrl;
-			$('#image-diff').append(diffImage);
-			$('#result').html("Match at : " + ((1-data.misMatchPercentage/100)*100).toFixed() + "%");
+			data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
+			$("#drawing").hide();
+			$.get('templates/result.mst', function(template) {
+				var rendered = Mustache.render(template,data);
+				$('#result').append(rendered);
+			});
 		});
 
 		socket.on('compare',function(){
@@ -80,10 +111,22 @@
 			compare();
 		});
 
-		socket.on('start',function(index){
+		socket.on('start',function(index,time){
+			$("#drawing").show();
+			$('#game').show();
+			$('#message').hide();
 			$('#image-diff').html('');
+			$('#result').html('');
+			count = time;
+			counter = setInterval(timer, 10);
 			init($('#canvas2'),'#FFF');
 			fillRef(index);
+		});
+
+		socket.on('stop',function(index){
+			$('#image-diff').html('');
+			$('#game').hide();
+			$('#message').show();
 		});
 
 		/*==========  Resemble Options  ==========*/

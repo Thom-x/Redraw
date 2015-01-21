@@ -1,0 +1,9 @@
+<div class="col-md-4">
+	<h4>{{nickname}}</h4>
+	<div class="col-md-12">
+		<img src="{{getImageDataUrl}}" alt="">
+	</div>
+	<div class="col-md-12">
+		Match at {{match}}%
+	</div>
+</div>

@@ -1,6 +1,6 @@
-// var connect = require('connect');
-// var serveStatic = require('serve-static');
-// connect().use(serveStatic("./")).listen(8080);
+var connect = require('connect');
+var serveStatic = require('serve-static');
+connect().use(serveStatic("./")).listen(80);
 
 // object.watch
 if (!Object.prototype.watch) {
@@ -75,12 +75,23 @@ function count(object)
 io.sockets.on('connect',function(socket) {
 	console.log('Nouveau utilisateur');
 	players[socket.id] = {};
+	players[socket.id].nickname = "Guest";
 	playersCount.v = count(players);
 
+	socket.emit('stop');
+
 	socket.on('drawed',function(data){
+		data.nickname = players[socket.id].nickname;
+		players[socket.id].nickname
 		io.sockets.emit('drawresults',data);
 	});
 
+	socket.on('nickname',function(data){
+		if(data != "")
+			players[socket.id].nickname = data;
+		else
+			players[socket.id].nickname = "Player";
+	});
 
 	socket.on('disconnect', function(){
       delete players[socket.id];
@@ -97,7 +108,7 @@ playersCount.watch('v', function (id,oldval,val) {
 		// new game
 		interval = setInterval(function(){
 			console.log("start")
-			io.sockets.emit('start',parseInt((Math.random()+1).toFixed()));
+			io.sockets.emit('start',parseInt((Math.random()+1).toFixed()),450);
 			setTimeout(function()
 			{
 				console.log("compare");
@@ -113,6 +124,8 @@ playersCount.watch('v', function (id,oldval,val) {
 	else
 	{
 		clearInterval(interval);
+		interval = undefined;
+		io.sockets.emit('stop');
 	}
 	return val;
 });
