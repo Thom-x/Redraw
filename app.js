@@ -57,9 +57,11 @@ httpServer.listen(8080);
 
 var io = require('socket.io').listen(httpServer);
 
+
 var players = {}
 var playersCount = {};
 playersCount.v = 0;
+var interval = undefined;
 
 function count(object)
 {
@@ -73,7 +75,7 @@ function count(object)
 }
 
 io.sockets.on('connect',function(socket) {
-	console.log('Nouveau utilisateur');
+	console.log('New player');
 	players[socket.id] = {};
 	players[socket.id].nickname = "Guest";
 	playersCount.v = count(players);
@@ -99,22 +101,14 @@ io.sockets.on('connect',function(socket) {
   });
 });
 
-var interval = undefined;
-
 playersCount.watch('v', function (id,oldval,val) {
-	console.log(oldval + " " + val);
+	console.log("Game change from " + oldval + " player to " + val + " player");
 	if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
 	{
+		startGame();
 		// new game
 		interval = setInterval(function(){
-			console.log("start")
-			io.sockets.emit('start',parseInt((Math.random()+1).toFixed()),450);
-			setTimeout(function()
-			{
-				console.log("compare");
-				io.sockets.emit('compare');
-				
-			},5000);
+			startGame();
 		}, 10000);
 	}
 	else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
@@ -129,3 +123,16 @@ playersCount.watch('v', function (id,oldval,val) {
 	}
 	return val;
 });
+
+var startGame = function()
+{
+	io.sockets.emit('start',parseInt((Math.random()+1).toFixed()),450);
+	console.log("Starting a new game ...")
+	io.sockets.emit('start',parseInt((Math.random()+1).toFixed()),450);
+	setTimeout(function()
+	{
+		console.log("Compare drawings ");
+		io.sockets.emit('compare');
+		
+	},5000);
+}

@@ -73,23 +73,24 @@
 	<script src="js/canvas-to-blob.min.js"></script>
 	<script src="http://localhost:8080/socket.io/socket.io.js"></script>
 	<script>
-
-var counter;
-function timer() {
-    if (count <= 0) {
-        clearInterval(counter);
-        return;
-    }
-    count--;
-    displayCount(count);
-}
-
-function displayCount(count) {
-    var res = count / 100;
-    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs";
-}
-
 	$(function() {
+		/*==========  Countdown  ==========*/
+		var counter;
+		function timer() {
+		    if (count <= 0) {
+		        clearInterval(counter);
+		        return;
+		    }
+		    count--;
+		    displayCount(count);
+		}
+
+		function displayCount(count) {
+		    var res = count / 100;
+		    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs";
+		}
+
+		/*==========  Socket  ==========*/
 		var socket = io.connect('http://localhost:8080');
 
 		$("#nickname").on('input',function(){
@@ -118,6 +119,7 @@ function displayCount(count) {
 			$('#image-diff').html('');
 			$('#result').html('');
 			count = time;
+			clearInterval(counter);
 			counter = setInterval(timer, 10);
 			init($('#canvas2'),'#FFF');
 			fillRef(index);
