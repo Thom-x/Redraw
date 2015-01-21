@@ -5,70 +5,152 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<div id="dropzone1" class="dropzone"></div>
-	<div id="dropzone2" class="dropzone"></div>
+
+	<canvas id="canvas1" width="100px" height="100px"></canvas>
+	<canvas id="canvas2" width="100px" height="100px"></canvas>
+
+	<button id="compare">Compare !</button>
+
+	<div id="image-diff"></div>
+	<div id="result"></div>
+
 	<script src="node_modules/jquery/dist/jquery.min.js"></script>
 	<script src="node_modules/resemblejs/resemble.js"></script>
+	<script src="js/canvas-to-blob.min.js"></script>
 	<script>
-	var $target = $('#drop-zone');
+	$(function() {
 
-	function dropZone($target, onDrop){
-		$target.
-			bind('dragover', function(){
-				$target.addClass( 'drag-over' );
-				return false;
-			}).
-			bind("dragend", function () {
-				$target.removeClass( 'drag-over' );
-				return false;
-			}).
-			bind("dragleave", function () {
-				$target.removeClass( 'drag-over' );
-				return false;
-			}).
-			bind("drop", function(event) {
-				var file = event.originalEvent.dataTransfer.files[0];
 
-				event.stopPropagation();
-				event.preventDefault();
+		/*==========  Resemble Options  ==========*/
+		resemble.outputSettings({
+			errorColor: {
+				red: 0,
+				green: 0,
+				blue: 255
+			},
+			errorType: 'movement',
+			transparency: 0.3,
+			largeImageThreshold: 1200
+		});
 
-				$target.removeClass( 'drag-over' );
-
-				var droppedImage = new Image();
-				var fileReader = new FileReader();
-
-				fileReader.onload = function (event) {
-					droppedImage.src = event.target.result;
-					$target.html(droppedImage);
-				};
-
-				fileReader.readAsDataURL(file);
-
-				onDrop(file);
-			});
-	};
-
-	var file1;
-	var file2;
-	var resembleControl;
-
-	dropZone($('#dropzone1'), function(file){
-		file1 = file;
-		if(file2){
-			resembleControl = resemble(file).compareTo(file2).onComplete(onComplete);
+		/*==========  Ref image  ==========*/
+		var canvas = document.getElementById('canvas1');
+		var ctx = canvas.getContext('2d');
+		ctx.fillStyle = "white";
+      	ctx.fillRect(0,0,100,100);
+		ctx.fillStyle = "red";
+		switch(parseInt((Math.random()*2).toFixed()))
+		{
+			case 1:
+      			ctx.fillRect(25,25,50,50);
+			break;
+			case 2:
+				ctx.beginPath();
+				ctx.moveTo(10,10);
+				ctx.lineTo(90,10);
+				ctx.lineTo(50,90);
+				ctx.fill();
+			break;
+			case 3:
+			break;
+			case 4:
+			break;
+			case 5:
+			break;
 		}
-	});
 
-	dropZone($('#dropzone2'), function(file){
-		file2 = file;
-		if(file1){
-			resembleControl = resemble(file).compareTo(file1).onComplete(onComplete);
+      	/*==========  Draw function  ==========*/
+      	function init(container, fillColor) {
+	        var canvas = container[0];
+	        canvas.node = container[0];
+	        var ctx = canvas.getContext('2d');
+	        // define a custom fillCircle method
+	        ctx.fillCircle = function(x, y, radius, fillColor) {
+	            this.fillStyle = fillColor;
+	            this.beginPath();
+	            this.moveTo(x, y);
+	            this.arc(x, y, radius, 0, Math.PI * 2, false);
+	            this.fill();
+	        };
+	        ctx.clearTo = function(fillColor) {
+	            ctx.fillStyle = fillColor;
+	            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	        };
+	        ctx.clearTo(fillColor || "#ddd");
+
+	        // bind mouse events
+	        canvas.node.onmousemove = function(e) {
+	            if (!canvas.isDrawing) {
+	               return;
+	            }
+	            var x = e.pageX - this.offsetLeft;
+	            var y = e.pageY - this.offsetTop;
+	            var radius = 3; // or whatever
+	            var fillColor = '#ff0000';
+	            ctx.fillCircle(x, y, radius, fillColor);
+	        };
+	        canvas.node.onmousedown = function(e) {
+	            canvas.isDrawing = true;
+	        };
+	        canvas.node.onmouseup = function(e) {
+	            canvas.isDrawing = false;
+	        };
+	    }
+    	
+    	init($('#canvas2'),'#FFF');
+
+		/*==========  Comparison function  ==========*/
+		var img1 = null;
+		var img2 = null;
+		var convert1 = function()
+		{
+			var canvas = document.getElementById('canvas1');
+			if (canvas.toBlob) {
+				var img = new Image();
+				img.src = canvas.toDataURL();
+				img.id = "img1";
+				//document.body.appendChild(img);
+			    canvas.toBlob(
+			        function (blob1) {
+						img1 = blob1;
+						convert2();
+			        },
+			        'image/jpeg'
+			    );
+			}	
+		};
+
+		var convert2 = function()
+		{
+			var canvas2 = document.getElementById('canvas2');
+			if (canvas2.toBlob) {
+				var img = new Image();
+				img.src = canvas2.toDataURL();
+				img.id = "img2";
+				//document.body.appendChild(img);
+			    canvas2.toBlob(
+			        function (blob2) {
+						img2 = blob2;
+						resembleControl = resemble(img1).compareTo(img2).ignoreAntialiasing().onComplete(onComplete);
+			        },
+			        'image/jpeg'
+			    );
+			}
 		}
-	});
 
-	function onComplete(data){
-		console.log(data);
-	};
+		$("#compare").click(function(){
+			convert1();
+		})
+
+		function onComplete(data){
+			console.log(data);
+			var diffImage = new Image();
+			diffImage.src = data.getImageDataUrl();
+
+			$('#image-diff').html(diffImage);
+			$('#result').html("Match at : " + ((1-data.misMatchPercentage/100)*100).toFixed() + "%");
+		};
+	});
 	</script>
 </body>
 </html>
