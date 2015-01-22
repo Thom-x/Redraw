@@ -1,9 +1,48 @@
+/*==========  Init  ==========*/
+nav, .top-bar, .content
+{
+	display: none;
+}
+
+.splashscreen img
+{
+	width: 25%;
+	margin-top: 10%;
+}
+
 body,html{
 	background-color: #F2F2F2;
 	color:#7F7F7F;
 }
 
+.content
+{
+	margin-top: 76px;
+}
+
+body.notNode .content
+{
+	margin-top: 50px;
+}
+
+
+.navbar-default
+{
+	border: none;
+	border-radius: 0;
+	margin-top: 26px;
+}
+
+body.notNode .navbar-default
+{
+	margin-top: 0px;
+}
+
+/*==========  End Init  ==========*/
+
+
 .top-bar{
+	position: fixed;
 	height: 26px;
 	top: 0;
 	left: 0;
@@ -52,12 +91,6 @@ canvas, .result{
 	 border: none; 
 }
 
-.navbar-default
-{
-	border: none;
-	border-radius: 0;
-}
-
 #timer{
 	color: #F57A7A;
 }
@@ -95,4 +128,12 @@ img.loading
 	-webkit-animation-iteration-count:  infinite;
 	-webkit-transition-timing-function: linear;
 	height: 42px;
+}
+
+::-webkit-scrollbar {
+    background: #FFFFFF;
+    width: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #BCF1E7;
 }

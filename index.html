@@ -7,36 +7,40 @@
 	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="top-bar" style="display:none">
-	<div id="quit">
-		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+	<div class="splashscreen text-center">
+		<img src="images/ico.png" alt="">
+		<h2 style="color:#29AD93">Redraw</h2>
 	</div>
-</div>
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#"><img class="brand" src="images/ico.png" alt=""></a>
-    </div>
+	<div class="top-bar" style="display:none">
+		<div id="quit">
+			<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+		</div>
+	</div>
+	<nav class="navbar navbar-default navbar-fixed-top">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="#"><img class="brand" src="images/ico.png" alt=""></a>
+	    </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		<form class="navbar-form navbar-left">
-			<input id="nickname" type="text" class="form-control" placeholder="Nickname">
-		</form>
-	      <ul class="nav navbar-nav">
-	        <li><a id="playerCount" href="#"></a></li>
-	      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-	<div class="container-fluid">
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<form class="navbar-form navbar-left">
+				<input id="nickname" type="text" class="form-control" placeholder="Nickname">
+			</form>
+		      <ul class="nav navbar-nav">
+		        <li><a id="playerCount" href="#"></a></li>
+		      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	<div class="container-fluid content">
 		<div id="counter"></div>
 		<div class="row">
 			<div class="col-md-12 text-center"><h2 id="message"></h2></div>
@@ -83,7 +87,19 @@
 		var isNode = (typeof require !== "undefined");
 		if(isNode)
 		{
-			$(".top-bar").show();
+			setTimeout(function(){
+				$(".top-bar").show();
+				$(".splashscreen").hide();
+				$("nav, .content").show();
+			},2000)
+		}
+		else
+		{
+			setTimeout(function(){
+				$("body").addClass("notNode");
+				$(".splashscreen").hide();
+				$("nav, .content").show();
+			},2000)
 		}
 		var playing = false;
 		$('#game').hide();
