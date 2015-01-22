@@ -141,13 +141,10 @@ img.loading
 #saved{
 	margin-left: -34px;
 	top: 4px;
-	display: none;
-	/*display: inline-block !important;*/
-
+	opacity: 0;
 }
 
 .saved{
-	display: inline-block !important;
 	-webkit-animation: saved 2s forwards; 
 }
 

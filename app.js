@@ -105,10 +105,10 @@ io.sockets.on('connect',function(socket) {
 	});
 
 	socket.on('nickname',function(data){
-		if(data != "")
-			players[socket.id].nickname = data;
+		if(data.trim() != "")
+			players[socket.id].nickname = data.trim();
 		else
-			players[socket.id].nickname = "Player";
+			players[socket.id].nickname = "Guest";
 	});
 
 	socket.on('disconnect', function(){

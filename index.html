@@ -163,7 +163,11 @@
 		{
 			$(".splashscreen").show();
 			$("nav, .content").hide();
-			$("#splashMessage").text("Connection failed :(")
+			$("#splashMessage").text("Connection failed :(");
+			if(isNode)
+			{
+				$(".top-bar").show();
+			}
 		};
 
 		try
