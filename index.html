@@ -9,7 +9,7 @@
 <body>
 	<div class="splashscreen text-center">
 		<img src="images/ico.png" alt="">
-		<h2 style="color:#29AD93">Redraw</h2>
+		<h2 id="splashMessage" style="color:#29AD93">Redraw</h2>
 	</div>
 	<div class="top-bar" style="display:none">
 		<div id="quit">
@@ -31,8 +31,9 @@
 
 	    <!-- Collect the nav links, forms, and other content for toggling -->
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-			<form class="navbar-form navbar-left">
+			<form id="nicknameForm" class="navbar-form navbar-left">
 				<input id="nickname" type="text" class="form-control" placeholder="Nickname">
+				<span id="saved" class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
 			</form>
 		      <ul class="nav navbar-nav">
 		        <li><a id="playerCount" href="#"></a></li>
@@ -84,26 +85,47 @@
 	<script>
 	$(function() {
 		/*==========  Init  ==========*/
+		var playing = false;
+		var connected = false;
+		var splashing = true;
 		var isNode = (typeof require !== "undefined");
+		$('#game').hide();
+		$('#message').show();
+
+		var showGame = function()
+		{
+			$("body").addClass("notNode");
+			$(".splashscreen").hide();
+			$("nav, .content").show();
+		};
+
+		var showGameNode = function()
+		{
+			$(".top-bar").show();
+			$(".splashscreen").hide();
+			$("nav, .content").show();
+		};
+
 		if(isNode)
 		{
 			setTimeout(function(){
-				$(".top-bar").show();
-				$(".splashscreen").hide();
-				$("nav, .content").show();
+				if(connected)
+				{
+					splashing = false;
+					showGameNode();
+				}
 			},2000)
 		}
 		else
 		{
 			setTimeout(function(){
-				$("body").addClass("notNode");
-				$(".splashscreen").hide();
-				$("nav, .content").show();
+				if(connected)
+				{
+					splashing = false;
+					showGame();
+				}
 			},2000)
 		}
-		var playing = false;
-		$('#game').hide();
-		$('#message').show();
 
 		$("#quit span").on('click',function(){
 			if(isNode)
@@ -113,6 +135,13 @@
 				win.close(); 
 			}
 		});
+
+		$("#nicknameForm").on('submit',function(e)
+		{
+			e.preventDefault();
+			return false;
+		});
+
 		/*==========  Countdown  ==========*/
 		var counter;
 		function timer() {
@@ -130,58 +159,96 @@
 		}
 
 		/*==========  Socket  ==========*/
-		var socket = io.connect('http://localhost:8080');
+		var showError = function()
+		{
+			$(".splashscreen").show();
+			$("nav, .content").hide();
+			$("#splashMessage").text("Connection failed :(")
+		};
 
-		$("#nickname").on('input',function(){
-			var nickname = $(this).val();
-			socket.emit('nickname',nickname)
-		});
+		try
+		{
+			var socket = io.connect('http://localhost:8080');
 
-		socket.on('playerChange', function(count) {
-			var s = count > 1 ? "s" : "";
-			$("#playerCount").text("Currently " + count + " player" + s +" connected.")
-		});
-		
-
-		socket.on('drawresults', function(data) {
-			data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
-			disable($('#canvas2'),'#FFF');
-			$.get('templates/result.mst', function(template) {
-				var rendered = Mustache.render(template,data);
-				$('#result').append(rendered);
+			socket.on("connect",function(){
+				connected = true;
+				if(!splashing)
+				{
+					if(isNode)
+					{
+						showGameNode();
+					}
+					else
+					{
+						showGame();
+					}
+				}
 			});
-		});
 
-		socket.on('compare',function(){
-			if(playing)
+			$("#nicknameForm").focusout(function(e)
 			{
-				compare();
-			}
-		});
+				var nickname = $(this).val();
+				socket.emit('nickname',nickname);
+				$('#saved').removeClass("saved").delay(100).queue(function() {
+					$(this).addClass("saved");
+					$(this).dequeue();
+				});
+			});
 
-		socket.on('wait',function(){
-			$('#message').html("Wait for the previous party to end <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
-			$('#game').hide();
-		});
+			socket.on('playerChange', function(count) {
+				var s = count > 1 ? "s" : "";
+				$("#playerCount").text("Currently " + count + " player" + s +" connected.")
+			});
+			
 
-		socket.on('start',function(index,time){
-			playing = true;
-			$('#game').show();
-			$('#message').hide();
-			$('#result').html('');
-			count = time;
-			clearInterval(counter);
-			counter = setInterval(timer, 10);
-			init($('#canvas2'),'#FFF');
-			fillRef(index);
-		});
+			socket.on('drawresults', function(data) {
+				data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
+				disable($('#canvas2'),'#FFF');
+				$.get('templates/result.mst', function(template) {
+					var rendered = Mustache.render(template,data);
+					$('#result').append(rendered);
+				});
+			});
 
-		socket.on('stop',function(index){
-			playing = false;
-			$('#game').hide();
-			$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
-		});
+			socket.on('compare',function(){
+				if(playing)
+				{
+					compare();
+				}
+			});
 
+			socket.on('wait',function(){
+				$('#message').html("Wait for the previous party to end <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
+				$('#game').hide();
+			});
+
+			socket.on('start',function(index,time){
+				playing = true;
+				$('#game').show();
+				$('#message').hide();
+				$('#result').html('');
+				count = time;
+				clearInterval(counter);
+				counter = setInterval(timer, 10);
+				init($('#canvas2'),'#FFF');
+				fillRef(index);
+			});
+
+			socket.on('stop',function(index){
+				playing = false;
+				$('#game').hide();
+				$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
+			});
+
+			socket.on('disconnect', function () {
+				connected = false;
+				showError();
+			});
+		}catch(e)
+		{
+			connected = false;
+			showError();
+		}
 		/*==========  Resemble Options  ==========*/
 		resemble.outputSettings({
 			errorColor: {

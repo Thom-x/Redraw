@@ -66,6 +66,9 @@ httpServer = http.createServer(function(req,res) {
 httpServer.listen(8080);
 
 var io = require('socket.io').listen(httpServer);
+io.set("heartbeat timeout", 1000);
+io.set("heartbeat interval", 5000);
+
 
 playersCount.v = 0;
 function count(object)

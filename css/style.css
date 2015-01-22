@@ -137,3 +137,31 @@ img.loading
 ::-webkit-scrollbar-thumb {
     background: #BCF1E7;
 }
+
+#saved{
+	margin-left: -34px;
+	top: 4px;
+	display: none;
+	/*display: inline-block !important;*/
+
+}
+
+.saved{
+	display: inline-block !important;
+	-webkit-animation: saved 2s forwards; 
+}
+
+
+@-webkit-keyframes saved{
+	0%   {
+		opacity: 0;
+	}
+    25%  {
+    	opacity: 1;
+    	-webkit-transform: rotate(0deg);
+    }
+    100% {
+    	opacity: 0;
+    	-webkit-transform: rotate(360deg);
+    }
+}
