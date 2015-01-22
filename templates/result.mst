@@ -1,9 +1,11 @@
-<div class="col-md-4 result">
-	<h4>{{nickname}}</h4>
-	<div class="col-md-12">
-		<img src="{{getImageDataUrl}}" alt="">
-	</div>
-	<div class="col-md-12">
-		Match at {{match}}%
+<div class="tileContainer col-md-6">
+	<div class="col-md-12 tile">
+		<h4>{{nickname}}</h4>
+		<div class="col-md-12">
+			<img class="result" src="{{getImageDataUrl}}" alt="">
+		</div>
+		<div class="col-md-12">
+			Match at {{match}}%
+		</div>
 	</div>
 </div>

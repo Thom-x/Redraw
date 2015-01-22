@@ -1,5 +1,6 @@
 body,html{
 	background-color: #F2F2F2;
+	color:#7F7F7F;
 }
 
 .top-bar{
@@ -7,17 +8,25 @@ body,html{
 	top: 0;
 	left: 0;
 	right: 0;
-	background-color: #282828;
+	background-color: #4ad8bc;
 	text-align: right;
+}
+
+.brand
+{
+	height: 42px;
+	margin: -11px;
+	margin-left: 0px;
 }
 
 #quit{
 	padding: 5px;
+	-webkit-app-region: drag;
 }
 
 #quit span{
 	-webkit-app-region: no-drag;
-	color: #EA090E;
+	color: #FFFFFF;
 	-webkit-transition: all .25s;
 	   -moz-transition: all .25s;
 	    -ms-transition: all .25s;
@@ -26,38 +35,64 @@ body,html{
 }
 
 #quit span:hover{
-	color: #FCA7A9;
+	color: #FB999B;
 }
 
-canvas{
-	border: solid 1px #939393;
-}
-
-img {
-	border: solid 1px #939393;
-}
-
-#quit{
-	-webkit-app-region: drag;
+canvas, .result{
+	box-shadow: 0px 2px 12px -5px black;
 }
 
 .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
 	position: initial;
 }
 
-#timer{
-	color: red;
+.form-control
+{
+	 border-radius: 0;
+	 border: none; 
 }
 
-.result
+.navbar-default
 {
-	border-radius: 3px;
-	border-bottom: solid 2px #AEAEAE;
+	border: none;
+	border-radius: 0;
+}
+
+#timer{
+	color: #F57A7A;
+}
+
+.tile
+{
+	box-shadow: 0px 5px 12px -7px black;
 	background-color: white;
-	margin: 5px;
 	padding: 10px;
+}
+
+.tileContainer
+{
+	padding: 5px;	
 }
 
 .navbar-form {
 	border-top: none; 
+}
+
+@-webkit-keyframes rotate {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to { 
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+img.loading
+{
+	margin-top: 10px;
+	-webkit-animation-name:             rotate; 
+	-webkit-animation-duration:         1s; 
+	-webkit-animation-iteration-count:  infinite;
+	-webkit-transition-timing-function: linear;
+	height: 42px;
 }

@@ -22,7 +22,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">Redraw</a>
+      <a class="navbar-brand" href="#"><img class="brand" src="images/ico.png" alt=""></a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
@@ -42,15 +42,28 @@
 			<div class="col-md-12 text-center"><h2 id="message"></h2></div>
 			<div class="col-md-6 text-center">
 				<div id="game" class="col-md-12">
-					<div class="col-md-6">
-						<h4>Reference :</h4>
-						<canvas id="canvas1" width="100px" height="100px"></canvas>
-						<img id="img1" style="display:none" src="" alt="">
+					<div class="tileContainer col-md-6">
+						<div class="col-md-12 tile">
+							<h4>Reference :</h4>
+							<div class="col-md-12">
+								<canvas id="canvas1" width="100px" height="100px"></canvas>
+								<img id="img1" style="display:none" src="" alt="">
+							</div>
+							<div class="col-md-12">
+								<h4>&#8239</h4>
+							</div>
+						</div>
 					</div>
-					<div class="col-md-6" id="drawing">
+					<div class="tileContainer col-md-6">
+						<div class="col-md-12 tile">
 						<h4>Your drawing :</h4>
-						<canvas id="canvas2" width="100px" height="100px"></canvas>
-						<h4 id="timer"></h4>
+							<div class="col-md-12">
+								<canvas id="canvas2" width="100px" height="100px"></canvas>
+							</div>
+							<div class="col-md-12">
+								<h4 id="timer"></h4>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -131,7 +144,7 @@
 		});
 
 		socket.on('wait',function(){
-			$('#message').text("Wait for the previous party to end ...").show();
+			$('#message').html("Wait for the previous party to end <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
 			$('#game').hide();
 		});
 
@@ -150,15 +163,15 @@
 		socket.on('stop',function(index){
 			playing = false;
 			$('#game').hide();
-			$('#message').text("Waiting for players ...").show();
+			$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
 		});
 
 		/*==========  Resemble Options  ==========*/
 		resemble.outputSettings({
 			errorColor: {
-				red: 0,
-				green: 0,
-				blue: 255
+				red: 57,
+				green: 177,
+				blue: 153
 			},
 			errorType: 'movement',
 			transparency: 0.3,
@@ -169,7 +182,7 @@
 		var fillRef = function(index)
 		{
 			var img = document.getElementById("img1");
-			$('img').attr('src', "images/model" + index + ".bmp").load(function() { 
+			$('#img1').attr('src', "images/model" + index + ".bmp").load(function() { 
 				var canvas = document.getElementById('canvas1');
 				var ctx = canvas.getContext('2d');
 				ctx.drawImage(img,0,0);
@@ -207,7 +220,7 @@
 	            var x = e.pageX - this.offsetLeft;
 	            var y = e.pageY - this.offsetTop;
 	            var radius = 3; // or whatever
-	            var fillColor = '#ff0000';
+	            var fillColor = '#4ad8bc';
 	            ctx.fillCircle(x, y, radius, fillColor);
 	        };
 	        canvas.node.onmousedown = function(e) {
@@ -255,7 +268,7 @@
 				    canvas2.toBlob(
 				        function (blob2) {
 							img2 = blob2;
-							resembleControl = resemble(img1).compareTo(blob2).ignoreAntialiasing().onComplete(onComplete);
+							resembleControl = resemble(img1).compareTo(blob2).ignoreColors().ignoreAntialiasing().onComplete(onComplete);
 				        },
 				        'image/jpeg'
 				    );
