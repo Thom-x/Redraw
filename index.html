@@ -81,7 +81,7 @@
 	<script src="node_modules/resemblejs/resemble.js"></script>
 	<script src="node_modules/mustache/mustache.min.js"></script>
 	<script src="js/canvas-to-blob.min.js"></script>
-	<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+	<script src="http://localhost:8042/socket.io/socket.io.js"></script>
 	<script>
 	$(function() {
 		/*==========  Init  ==========*/
@@ -172,7 +172,7 @@
 
 		try
 		{
-			var socket = io.connect('http://localhost:8080');
+			var socket = io.connect('http://localhost:8042');
 
 			socket.on("connect",function(){
 				connected = true;
@@ -226,16 +226,17 @@
 				$('#game').hide();
 			});
 
-			socket.on('start',function(index,time){
+			socket.on('start',function(data){
 				playing = true;
 				$('#game').show();
 				$('#message').hide();
 				$('#result').html('');
-				count = time;
+				count = data.time;
 				clearInterval(counter);
+				console.log(data.time);
 				counter = setInterval(timer, 10);
 				init($('#canvas2'),'#FFF');
-				fillRef(index);
+				fillRef(data.index);
 			});
 
 			socket.on('stop',function(index){

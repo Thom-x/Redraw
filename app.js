@@ -2,8 +2,8 @@ var connect = require('connect');
 var serveStatic = require('serve-static');
 
 var players = {}
-var playersCount = {};
-var playing = false;
+var lobbies = {}
+var lobbyCount = 0;
 var interval = undefined;
 var _modelCount = 4;
 
@@ -63,14 +63,13 @@ httpServer = http.createServer(function(req,res) {
   console.log('une nouvelle connexion');
 });
 
-httpServer.listen(8080);
+httpServer.listen(8042);
 
 var io = require('socket.io').listen(httpServer);
 io.set("heartbeat timeout", 1000);
 io.set("heartbeat interval", 5000);
 
 
-playersCount.v = 0;
 function count(object)
 {
 	var count = 0;
@@ -83,25 +82,30 @@ function count(object)
 }
 
 io.sockets.on('connect',function(socket) {
-	console.log('New player');
+	console.log('new player ' + socket.id);
 	players[socket.id] = {};
 	players[socket.id].nickname = "Guest";
-	if(playing)
+	lobbyfreeSlot = lobbyAvailable();
+
+	if(lobbyfreeSlot < 0)
 	{
-		socket.emit('wait');
+		console.log('No free lobby, create one');
+		players[socket.id].lobby = createLobby();
+		lobbies[players[socket.id].lobby].players[socket.id] = players[socket.id];
 	}
 	else
 	{
-		socket.emit('stop');
+		console.log('Free lobby found');
+		players[socket.id].lobby = lobbyfreeSlot;
+		lobbies[players[socket.id].lobby].players[socket.id] = players[socket.id];
+		lobbies[players[socket.id].lobby].full=1;
 	}
 
-	playersCount.v = count(players);
-
+	lobbies[players[socket.id].lobby].v = count(lobbies[players[socket.id].lobby].players);
 
 	socket.on('drawed',function(data){
 		data.nickname = players[socket.id].nickname;
-		players[socket.id].nickname
-		io.sockets.emit('drawresults',data);
+		emitLobby(players[socket.id].lobby,'drawresults',data);
 	});
 
 	socket.on('nickname',function(data){
@@ -112,49 +116,110 @@ io.sockets.on('connect',function(socket) {
 	});
 
 	socket.on('disconnect', function(){
-      delete players[socket.id];
-      playersCount.v = count(players);
+		if(typeof(players[socket.id].lobby) != "undefined")
+		{
+	  		delete lobbies[players[socket.id].lobby].players[socket.id];
+    		lobbies[players[socket.id].lobby].v = count(lobbies[players[socket.id].lobby].players);
+		  	lobbies[players[socket.id].lobby].full = false;
+		}
+	  	delete players[socket.id];
   });
 });
 
-playersCount.watch('v', function (id,oldval,val) {
-	console.log("Game change from " + oldval + " player to " + val + " player");
-	io.sockets.emit('playerChange',val);
-	if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
-	{
-		if(interval == undefined)
-		{
-			startGame();
-			// new game
-			interval = setInterval(function(){
-				startGame();
-			}, _drawTime + _compareTime);
-		}
-	}
-	else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
-	{
-		// new player wait for new game
-	}
-	else
-	{
-		clearInterval(interval);
-		interval = undefined;
-		playing = false;
-		console.log("Stoping game ...")
-		io.sockets.emit('stop');
-	}
-	return val;
-});
+	
 
-var startGame = function()
+var startGame = function(lobbyId)
 {
-	playing = true;
-	console.log("Starting a new game ...")
-	io.sockets.emit('start',parseInt((Math.random()*(_modelCount-1)+1).toFixed()),_drawTime/10-50);
+	lobbies[lobbyId].playing = true;
+	console.log("start  "+ lobbies[lobbyId].id);
+	var data = {};
+	data.index = parseInt((Math.random()*(_modelCount-1)+1).toFixed());
+	data.time = _drawTime/10-50;
+	emitLobby(lobbyId,'start',data);
 	setTimeout(function()
 	{
-		console.log("Compare drawings ");
-		io.sockets.emit('compare');
+		console.log("compare " + lobbyId);
+		emitLobby(lobbyId,'compare');
 		
 	},_drawTime);
+}
+
+function lobbyAvailable()
+{
+	var choosenLobbyId = -1;
+	var choosenLobbyCount = -1;
+	for(currentLobbyId in lobbies)
+	{
+		console.log("CURRENT " + lobbies[currentLobbyId].v);
+		if(!lobbies[currentLobbyId].playing && !lobbies[currentLobbyId].full)
+		{
+			if(lobbies[currentLobbyId].v > choosenLobbyCount)
+			{
+				choosenLobbyId = lobbies[currentLobbyId].id;
+				choosenLobbyCount = lobbies[currentLobbyId].v;
+			}
+		}
+	}
+	return choosenLobbyId;
+}
+function createLobby()
+{
+	console.log("create lobby " + lobbyCount);
+	lobbies[lobbyCount] = {};
+	lobbies[lobbyCount].id=lobbyCount;
+	lobbies[lobbyCount].full = 0;
+	lobbies[lobbyCount].playing = 0;
+	lobbies[lobbyCount].v=0;
+	lobbies[lobbyCount].players={};
+
+
+	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
+		console.log("lobby " + this.id + " : " + oldval + " player to " + val);
+		emitLobby(this.id,'playerChange',val);
+		if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
+		{
+			if(interval == undefined)
+			{
+				startGame(this.id);
+				// new game
+				interval = setInterval(function(){
+					startGame(this.id);
+				}, _drawTime + _compareTime);
+			}
+		}
+		else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
+		{
+			// new player wait for new game
+		}
+		else
+		{
+			clearInterval(interval);
+			interval = undefined;
+			this.playing = false;
+			this.full = false;
+			console.log("stop " + this.id);
+			emitLobby(this.id,'stop');
+		}
+		return val;
+	});
+
+	return lobbyCount++;
+}
+
+var emitLobby = function (lobbyId, command, data)
+{
+	try
+	{
+		for(currentPlayer in lobbies[lobbyId].players)
+		{
+			try{
+				io.sockets.connected[currentPlayer].emit(command,data);
+			}catch(e)
+			{
+			}
+		}
+	}catch(e)
+	{
+		
+	}
 }
