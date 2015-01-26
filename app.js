@@ -144,7 +144,7 @@ var startGame = function(lobbyId)
 	{
 		console.log("compare " + lobbyId);
 		emitLobby(lobbyId,'compare');
-		setTimeout(function()
+		lobbies[lobbyId].intervalCompareSend = setTimeout(function()
 		{
 			lobbies[lobbyId].winner();
 			emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
@@ -156,8 +156,10 @@ var stopGame = function(lobbyId)
 {
 	clearInterval(lobbies[lobbyId].interval);
 	clearInterval(lobbies[lobbyId].intervalCompare);
+	clearInterval(lobbies[lobbyId].intervalCompareSend);
 	lobbies[lobbyId].interval = undefined;
 	lobbies[lobbyId].intervalCompare = undefined;
+	lobbies[lobbyId].intervalCompareSend = undefined;
 	lobbies[lobbyId].playing = false;
 	lobbies[lobbyId].full = false;
 	console.log("stop " + lobbies[lobbyId].id);
@@ -224,6 +226,7 @@ function createLobby()
 	lobbies[lobbyCount].players={};
 	lobbies[lobbyCount].interval=undefined;
 	lobbies[lobbyCount].intervalCompare=undefined;
+	lobbies[lobbyCount].intervalCompareSend=undefined;
 	lobbies[lobbyCount].winner=lobbyWinner;
 
 
