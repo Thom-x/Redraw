@@ -150,7 +150,6 @@ function lobbyAvailable()
 	var choosenLobbyCount = -1;
 	for(currentLobbyId in lobbies)
 	{
-		console.log("CURRENT " + lobbies[currentLobbyId].v);
 		if(!lobbies[currentLobbyId].playing && !lobbies[currentLobbyId].full)
 		{
 			if(lobbies[currentLobbyId].v > choosenLobbyCount)
@@ -171,6 +170,7 @@ function createLobby()
 	lobbies[lobbyCount].playing = 0;
 	lobbies[lobbyCount].v=0;
 	lobbies[lobbyCount].players={};
+	lobbies[lobbyCount].interval=undefined;
 
 
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
@@ -178,13 +178,13 @@ function createLobby()
 		emitLobby(this.id,'playerChange',val);
 		if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
 		{
-			if(interval == undefined)
+			if(this.interval == undefined)
 			{
 				startGame(this.id);
 				// new game
-				interval = setInterval(function(){
-					startGame(this.id);
-				}, _drawTime + _compareTime);
+				this.interval = setInterval(function(that){
+					startGame(that.id);
+				}, _drawTime + _compareTime,this);
 			}
 		}
 		else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
@@ -193,8 +193,8 @@ function createLobby()
 		}
 		else
 		{
-			clearInterval(interval);
-			interval = undefined;
+			clearInterval(this.interval);
+			this.interval = undefined;
 			this.playing = false;
 			this.full = false;
 			console.log("stop " + this.id);
