@@ -67,10 +67,10 @@ body.notNode .navbar-default
 	-webkit-app-region: no-drag;
 	color: #FFFFFF;
 	-webkit-transition: all .25s;
-	   -moz-transition: all .25s;
-	    -ms-transition: all .25s;
-	     -o-transition: all .25s;
-	        transition: all .25s;
+	-moz-transition: all .25s;
+	-ms-transition: all .25s;
+	-o-transition: all .25s;
+	transition: all .25s;
 }
 
 #quit span:hover{
@@ -87,8 +87,8 @@ canvas, .result{
 
 .form-control
 {
-	 border-radius: 0;
-	 border: none; 
+	border-radius: 0;
+	border: none; 
 }
 
 #timer{
@@ -112,12 +112,12 @@ canvas, .result{
 }
 
 @-webkit-keyframes rotate {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to { 
-    -webkit-transform: rotate(360deg);
-  }
+	from {
+		-webkit-transform: rotate(0deg);
+	}
+	to { 
+		-webkit-transform: rotate(360deg);
+	}
 }
 
 img.loading
@@ -131,11 +131,11 @@ img.loading
 }
 
 ::-webkit-scrollbar {
-    background: #FFFFFF;
-    width: 10px;
+	background: #FFFFFF;
+	width: 10px;
 }
 ::-webkit-scrollbar-thumb {
-    background: #BCF1E7;
+	background: #BCF1E7;
 }
 
 #saved{
@@ -153,12 +153,27 @@ img.loading
 	0%   {
 		opacity: 0;
 	}
-    25%  {
-    	opacity: 1;
-    	-webkit-transform: rotate(0deg);
-    }
-    100% {
-    	opacity: 0;
-    	-webkit-transform: rotate(360deg);
-    }
+	25%  {
+		opacity: 1;
+		-webkit-transform: rotate(0deg);
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+.winner{
+	color: #F7C248;
+	transform : translate3d(-46px,32px,0) rotateZ(-27deg);
+}
+.looser{
+	color: #E05A5A;
+	transform : translate3d(-52px,32px,0) rotateZ(-207deg);
+}
+
+.infoIcon
+{
+	font-size: 2em;
+	line-height: 0;
 }

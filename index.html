@@ -189,7 +189,7 @@
 				}
 			});
 
-			$("#nicknameForm").focusout(function(e)
+			$("#nickname").focusout(function(e)
 			{
 				var nickname = $(this).val();
 				socket.emit('nickname',nickname);
@@ -205,8 +205,8 @@
 			});
 			
 
-			socket.on('drawresults', function(data) {
-				data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
+			socket.on('results', function(data) {
+				console.log(data);
 				disable($('#canvas2'),'#FFF');
 				$.get('templates/result.mst', function(template) {
 					var rendered = Mustache.render(template,data);
@@ -217,13 +217,9 @@
 			socket.on('compare',function(){
 				if(playing)
 				{
+					disable($('#canvas2'),'#FFF');
 					compare();
 				}
-			});
-
-			socket.on('wait',function(){
-				$('#message').html("Wait for the previous party to end <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
-				$('#game').hide();
 			});
 
 			socket.on('start',function(data){
@@ -233,7 +229,6 @@
 				$('#result').html('');
 				count = data.time;
 				clearInterval(counter);
-				console.log(data.time);
 				counter = setInterval(timer, 10);
 				init($('#canvas2'),'#FFF');
 				fillRef(data.index);
@@ -242,12 +237,13 @@
 			socket.on('stop',function(index){
 				playing = false;
 				$('#game').hide();
+				$('#result').html('');
 				$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
 			});
 
 			socket.on('disconnect', function () {
 				connected = false;
-				showError();
+				//showError();
 			});
 		}catch(e)
 		{

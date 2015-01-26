@@ -1,5 +1,13 @@
+
+{{#players}}
 <div class="tileContainer col-md-6">
 	<div class="col-md-12 tile">
+		{{#won}}
+			<span class="infoIcon winner glyphicon glyphicon-king" aria-hidden="true"></span>
+		{{/won}}
+		{{#lose}}
+			<span class="infoIcon looser glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
+		{{/lose}}
 		<h4>{{nickname}}</h4>
 		<div class="col-md-12">
 			<img class="result" src="{{getImageDataUrl}}" alt="">
@@ -9,3 +17,4 @@
 		</div>
 	</div>
 </div>
+{{/players}}

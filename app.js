@@ -9,6 +9,7 @@ var _modelCount = 4;
 
 var _drawTime = 5000;
 var _compareTime = 5000;
+var _compareTimeOut = 500;
 
 connect().use(serveStatic("./")).listen(80);
 
@@ -105,7 +106,9 @@ io.sockets.on('connect',function(socket) {
 
 	socket.on('drawed',function(data){
 		data.nickname = players[socket.id].nickname;
-		emitLobby(players[socket.id].lobby,'drawresults',data);
+		data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
+		lobbies[players[socket.id].lobby].results.push(data);
+		// emitLobby(players[socket.id].lobby,'drawresults',data);
 	});
 
 	socket.on('nickname',function(data){
@@ -131,17 +134,34 @@ io.sockets.on('connect',function(socket) {
 var startGame = function(lobbyId)
 {
 	lobbies[lobbyId].playing = true;
+	lobbies[lobbyId].results = [];
 	console.log("start  "+ lobbies[lobbyId].id);
 	var data = {};
 	data.index = parseInt((Math.random()*(_modelCount-1)+1).toFixed());
 	data.time = _drawTime/10-50;
 	emitLobby(lobbyId,'start',data);
-	setTimeout(function()
+	lobbies[lobbyId].intervalCompare = setTimeout(function()
 	{
 		console.log("compare " + lobbyId);
 		emitLobby(lobbyId,'compare');
-		
+		setTimeout(function()
+		{
+			lobbies[lobbyId].winner();
+			emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
+		},_compareTimeOut);		
 	},_drawTime);
+}
+
+var stopGame = function(lobbyId)
+{
+	clearInterval(lobbies[lobbyId].interval);
+	clearInterval(lobbies[lobbyId].intervalCompare);
+	lobbies[lobbyId].interval = undefined;
+	lobbies[lobbyId].intervalCompare = undefined;
+	lobbies[lobbyId].playing = false;
+	lobbies[lobbyId].full = false;
+	console.log("stop " + lobbies[lobbyId].id);
+	emitLobby(lobbyId,'stop');
 }
 
 function lobbyAvailable()
@@ -161,6 +181,38 @@ function lobbyAvailable()
 	}
 	return choosenLobbyId;
 }
+
+function lobbyWinner()
+{
+	var winner = undefined;
+	var looser = undefined;
+	var bestScore = 0;
+	var worstScore = 999;
+	for(currentPlayerIndex in this.results)
+	{
+		var currentPlayer = this.results[currentPlayerIndex];
+		if(currentPlayer.match > bestScore)
+		{
+			winner = currentPlayer;
+			bestScore = currentPlayer.match;
+		}
+
+		if(currentPlayer.match <= worstScore)
+		{
+			looser = currentPlayer;
+			worstScore = currentPlayer.match;
+		}
+	}
+	if(typeof(winner) != "undefined")
+	{
+		winner.won = true;
+	}
+	if(typeof(looser) != "undefined" && looser != winner)
+	{
+		looser.lose = true;
+	}
+}
+
 function createLobby()
 {
 	console.log("create lobby " + lobbyCount);
@@ -171,6 +223,9 @@ function createLobby()
 	lobbies[lobbyCount].v=0;
 	lobbies[lobbyCount].players={};
 	lobbies[lobbyCount].interval=undefined;
+	lobbies[lobbyCount].intervalCompare=undefined;
+	lobbies[lobbyCount].winner=lobbyWinner;
+
 
 
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
@@ -193,12 +248,7 @@ function createLobby()
 		}
 		else
 		{
-			clearInterval(this.interval);
-			this.interval = undefined;
-			this.playing = false;
-			this.full = false;
-			console.log("stop " + this.id);
-			emitLobby(this.id,'stop');
+			stopGame(this.id);
 		}
 		return val;
 	});
