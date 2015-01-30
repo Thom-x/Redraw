@@ -1,6 +1,7 @@
 var connect = require('connect');
 var serveStatic = require('serve-static');
 
+var socketPort = 8042;
 var players = {}
 var lobbies = {}
 var lobbyCount = 0;
@@ -10,6 +11,8 @@ var _modelCount = 4;
 var _drawTime = 5000;
 var _compareTime = 5000;
 var _compareTimeOut = 500;
+
+var _minPlayer = 2;
 
 connect().use(serveStatic("./")).listen(80);
 
@@ -64,7 +67,7 @@ httpServer = http.createServer(function(req,res) {
   console.log('une nouvelle connexion');
 });
 
-httpServer.listen(8042);
+httpServer.listen(socketPort);
 
 var io = require('socket.io').listen(httpServer);
 io.set("heartbeat timeout", 1000);
@@ -234,7 +237,7 @@ function createLobby()
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
 		console.log("lobby " + this.id + " : " + oldval + " player to " + val);
 		emitLobby(this.id,'playerChange',val);
-		if(val >=2 && (oldval<2 || typeof(oldval) == "undefined"))
+		if(val >=_minPlayer && (oldval<_minPlayer || typeof(oldval) == "undefined"))
 		{
 			if(this.interval == undefined)
 			{
@@ -245,7 +248,7 @@ function createLobby()
 				}, _drawTime + _compareTime,this);
 			}
 		}
-		else if(val >=2 && (oldval>=2 || typeof(oldval) == "undefined"))
+		else if(val >=_minPlayer && (oldval>=_minPlayer || typeof(oldval) == "undefined"))
 		{
 			// new player wait for new game
 		}
