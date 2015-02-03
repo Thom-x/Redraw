@@ -82,7 +82,7 @@
 	<script src="node_modules/resemblejs/resemble.js"></script>
 	<script src="node_modules/mustache/mustache.min.js"></script>
 	<script src="js/canvas-to-blob.min.js"></script>
-	<script src="http://localhost:8042/socket.io/socket.io.js"></script>
+	<script src="http://{{url}}:80/socket.io/socket.io.js"></script>
 	<script>
 	$(function() {
 		/*==========  Init  ==========*/
@@ -173,7 +173,7 @@
 
 		try
 		{
-			var socket = io.connect('http://localhost:8042');
+			var socket = io.connect('http://{{url}}:80');
 
 			socket.on("connect",function(){
 				connected = true;

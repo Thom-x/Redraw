@@ -1,7 +1,21 @@
-var connect = require('connect');
-var serveStatic = require('serve-static');
+var express = require("express");
+var mustacheExpress = require('mustache-express');
+var app = express();
+var port = process.env.PORT || 80;
+var url = process.env.URL || "127.0.0.1";
 
-var socketPort = 8042;
+
+app.engine('html', mustacheExpress());          // register file extension mustache
+app.set('view engine', 'html');                 // register file extension for partials
+app.set('views', __dirname + '/');
+app.get("/", function(req, res){
+    res.render("index",{port : port, url : url});
+});
+app.use(express.static(__dirname + '/')); 
+var io = require('socket.io').listen(app.listen(port));
+
+console.log("listening on port " + port);
+
 var players = {}
 var lobbies = {}
 var lobbyCount = 0;
@@ -13,8 +27,6 @@ var _compareTime = 5000;
 var _compareTimeOut = 500;
 
 var _minPlayer = 2;
-
-connect().use(serveStatic("./")).listen(80);
 
 // object.watch
 if (!Object.prototype.watch) {
@@ -61,15 +73,6 @@ if (!Object.prototype.unwatch) {
 	});
 }
 
-var http = require('http');
-
-httpServer = http.createServer(function(req,res) {
-  console.log('une nouvelle connexion');
-});
-
-httpServer.listen(socketPort);
-
-var io = require('socket.io').listen(httpServer);
 io.set("heartbeat timeout", 1000);
 io.set("heartbeat interval", 5000);
 
