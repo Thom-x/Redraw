@@ -8,7 +8,7 @@
 		{{#lose}}
 			<span class="infoIcon looser glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
 		{{/lose}}
-		<h4>{{nickname}}</h4>
+		<h4>{{nickname}}</h4><strong>{{score}}</strong>
 		<div class="col-md-12">
 			<img class="result" src="{{getImageDataUrl}}" alt="">
 		</div>

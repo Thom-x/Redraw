@@ -90,8 +90,11 @@ function count(object)
 
 io.sockets.on('connect',function(socket) {
 	console.log('new player ' + socket.id);
+
 	players[socket.id] = {};
 	players[socket.id].nickname = "Guest";
+	players[socket.id].score = 0;
+
 	lobbyfreeSlot = lobbyAvailable();
 
 	if(lobbyfreeSlot < 0)
@@ -112,9 +115,9 @@ io.sockets.on('connect',function(socket) {
 
 	socket.on('drawed',function(data){
 		data.nickname = players[socket.id].nickname;
+		data.id = socket.id;
 		data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
 		lobbies[players[socket.id].lobby].results.push(data);
-		// emitLobby(players[socket.id].lobby,'drawresults',data);
 	});
 
 	socket.on('nickname',function(data){
@@ -139,6 +142,11 @@ io.sockets.on('connect',function(socket) {
 
 var startGame = function(lobbyId)
 {
+	if(lobbies[lobbyId].gameCount >= 10)
+	{
+		lobbies[lobbyId].gameCount = 0;
+	}
+	lobbies[lobbyId].gameCount++;
 	lobbies[lobbyId].playing = true;
 	lobbies[lobbyId].results = [];
 	console.log("start  "+ lobbies[lobbyId].id);
@@ -152,7 +160,7 @@ var startGame = function(lobbyId)
 		emitLobby(lobbyId,'compare');
 		lobbies[lobbyId].intervalCompareSend = setTimeout(function()
 		{
-			lobbies[lobbyId].winner();
+			lobbies[lobbyId].score();
 			emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
 		},_compareTimeOut);		
 	},_drawTime);
@@ -190,7 +198,7 @@ function lobbyAvailable()
 	return choosenLobbyId;
 }
 
-function lobbyWinner()
+function lobbyScore()
 {
 	var winner = undefined;
 	var looser = undefined;
@@ -199,21 +207,28 @@ function lobbyWinner()
 	for(currentPlayerIndex in this.results)
 	{
 		var currentPlayer = this.results[currentPlayerIndex];
+		if(this.gameCount == 1)
+		{
+			players[this.results[currentPlayerIndex].id].score = 0;
+		}
 		if(currentPlayer.match > bestScore)
 		{
 			winner = currentPlayer;
 			bestScore = currentPlayer.match;
 		}
 
-		if(currentPlayer.match <= worstScore)
+		if(currentPlayer.match < worstScore)
 		{
 			looser = currentPlayer;
 			worstScore = currentPlayer.match;
 		}
+		this.results[currentPlayerIndex].score = players[this.results[currentPlayerIndex].id].score;
 	}
 	if(typeof(winner) != "undefined")
 	{
 		winner.won = true;
+		players[winner.id].score++;
+		winner.score = players[winner.id].score;
 	}
 	if(typeof(looser) != "undefined" && looser != winner)
 	{
@@ -233,8 +248,8 @@ function createLobby()
 	lobbies[lobbyCount].interval=undefined;
 	lobbies[lobbyCount].intervalCompare=undefined;
 	lobbies[lobbyCount].intervalCompareSend=undefined;
-	lobbies[lobbyCount].winner=lobbyWinner;
-
+	lobbies[lobbyCount].score=lobbyScore;
+	lobbies[lobbyCount].gameCount=0;
 
 
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
