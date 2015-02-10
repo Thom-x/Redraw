@@ -4,6 +4,8 @@ var app = express();
 var port = process.env.PORT || 80;
 var url = process.env.URL || "127.0.0.1";
 
+exports.port = port;
+exports.url = url;
 
 app.engine('html', mustacheExpress());          // register file extension mustache
 app.set('view engine', 'html');                 // register file extension for partials

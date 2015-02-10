@@ -82,9 +82,107 @@
 	<script src="node_modules/resemblejs/resemble.js"></script>
 	<script src="node_modules/mustache/mustache.min.js"></script>
 	<script src="js/canvas-to-blob.min.js"></script>
-	<script src="http://{{url}}:80/socket.io/socket.io.js"></script>
 	<script>
 	$(function() {
+		var socket;
+		/*==========  Socket  ==========*/
+		var showError = function()
+		{
+			$(".splashscreen").show();
+			$("nav, .content").hide();
+			$("#splashMessage").text("Connection failed :(");
+			if(isNode)
+			{
+				$(".top-bar").show();
+			}
+		};
+
+		var launchSocket = function()
+		{
+			try
+			{
+				if(isNode)
+					socket = io.connect('http://' + server.url + ':80');
+				else
+					socket = io.connect('http://{{url}}:80');
+
+				socket.on("connect",function(){
+					connected = true;
+					if(!splashing)
+					{
+						if(isNode)
+						{
+							showGameNode();
+						}
+						else
+						{
+							showGame();
+						}
+					}
+				});
+
+				$("#nickname").focusout(function(e)
+				{
+					var nickname = $(this).val();
+					socket.emit('nickname',nickname);
+					$('#saved').removeClass("saved").delay(100).queue(function() {
+						$(this).addClass("saved");
+						$(this).dequeue();
+					});
+				});
+
+				socket.on('playerChange', function(count) {
+					var s = count > 1 ? "s" : "";
+					$("#playerCount").text("Currently " + count + " player" + s +" connected.")
+				});
+				
+
+				socket.on('results', function(data) {
+					disable($('#canvas2'),'#FFF');
+					$.get('templates/result.mst', function(template) {
+						var rendered = Mustache.render(template,data);
+						$('#result').append(rendered);
+					});
+				});
+
+				socket.on('compare',function(){
+					if(playing)
+					{
+						disable($('#canvas2'),'#FFF');
+						compare();
+					}
+				});
+
+				socket.on('start',function(data){
+					playing = true;
+					$('#game').show();
+					$('#message').hide();
+					$('#result').html('');
+					count = data.time;
+					clearInterval(counter);
+					counter = setInterval(timer, 10);
+					init($('#canvas2'),'#FFF');
+					fillRef(data.index);
+				});
+
+				socket.on('stop',function(index){
+					playing = false;
+					$('#game').hide();
+					$('#result').html('');
+					$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
+				});
+
+				socket.on('disconnect', function () {
+					connected = false;
+					showError();
+				});
+			}catch(e)
+			{
+			 	connected = false;
+			 	showError();
+			}
+		}
+
 		/*==========  Init  ==========*/
 		var playing = false;
 		var connected = false;
@@ -109,16 +207,24 @@
 
 		if(isNode)
 		{
+			var server = require('./server.js');
+			$.getScript( 'http://' + server.url + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
+				launchSocket();
+			});
 			setTimeout(function(){
 				if(connected)
 				{
 					splashing = false;
 					showGameNode();
 				}
-			},2000)
+			},3000)
 		}
 		else
 		{
+			var s = document.createElement("script");
+			$.getScript( 'http://{{url}}/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
+				launchSocket();
+			});
 			setTimeout(function(){
 				if(connected)
 				{
@@ -159,98 +265,6 @@
 		    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs";
 		}
 
-		/*==========  Socket  ==========*/
-		var showError = function()
-		{
-			$(".splashscreen").show();
-			$("nav, .content").hide();
-			$("#splashMessage").text("Connection failed :(");
-			if(isNode)
-			{
-				$(".top-bar").show();
-			}
-		};
-
-		try
-		{
-			var socket = io.connect('http://{{url}}:80');
-
-			socket.on("connect",function(){
-				connected = true;
-				if(!splashing)
-				{
-					if(isNode)
-					{
-						showGameNode();
-					}
-					else
-					{
-						showGame();
-					}
-				}
-			});
-
-			$("#nickname").focusout(function(e)
-			{
-				var nickname = $(this).val();
-				socket.emit('nickname',nickname);
-				$('#saved').removeClass("saved").delay(100).queue(function() {
-					$(this).addClass("saved");
-					$(this).dequeue();
-				});
-			});
-
-			socket.on('playerChange', function(count) {
-				var s = count > 1 ? "s" : "";
-				$("#playerCount").text("Currently " + count + " player" + s +" connected.")
-			});
-			
-
-			socket.on('results', function(data) {
-				console.log(data);
-				disable($('#canvas2'),'#FFF');
-				$.get('templates/result.mst', function(template) {
-					var rendered = Mustache.render(template,data);
-					$('#result').append(rendered);
-				});
-			});
-
-			socket.on('compare',function(){
-				if(playing)
-				{
-					disable($('#canvas2'),'#FFF');
-					compare();
-				}
-			});
-
-			socket.on('start',function(data){
-				playing = true;
-				$('#game').show();
-				$('#message').hide();
-				$('#result').html('');
-				count = data.time;
-				clearInterval(counter);
-				counter = setInterval(timer, 10);
-				init($('#canvas2'),'#FFF');
-				fillRef(data.index);
-			});
-
-			socket.on('stop',function(index){
-				playing = false;
-				$('#game').hide();
-				$('#result').html('');
-				$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
-			});
-
-			socket.on('disconnect', function () {
-				connected = false;
-				showError();
-			});
-		}catch(e)
-		{
-			connected = false;
-			showError();
-		}
 		/*==========  Resemble Options  ==========*/
 		resemble.outputSettings({
 			errorColor: {
@@ -364,7 +378,14 @@
 
 		function onComplete(data){
 			data.getImageDataUrl = data.getImageDataUrl();
-			socket.emit('drawed', data);
+			try
+			{
+				socket.emit('drawed', data);
+			}catch(e)
+			{
+			 	connected = false;
+			 	showError();
+			}
 		};
 	});
 	</script>

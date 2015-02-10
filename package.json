@@ -2,7 +2,7 @@
   "name": "Redraw",
   "version": "1.0.0",
   "description": "Redraw application",
-  "main": "http://localhost:80",
+  "main": "index.html",
   "single-instance": false,
   "window": {
     "icon": "images/ico.png",
