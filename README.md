@@ -7,10 +7,10 @@ Demo Heroku : http://redrawhtml5.herokuapp.com
 Application web permettant de dessiner une forme face à d'autres adversaires sur internet. Celui qui dessine le mieux la forme proposée remporte un point, la personne ayant le plus de point rempotre la partie.
 
 ##Technologies utilisées :
-	- Node
-	- Node Webkit
-	- Heroku
-	- Grunt
+- Node
+- Node Webkit
+- Heroku
+- Grunt
 
 ## Node :
     $ node server.js
