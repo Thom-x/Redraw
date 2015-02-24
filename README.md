@@ -3,6 +3,15 @@
 
 Demo Heroku : http://redrawhtml5.herokuapp.com
 
+## Description :
+Application web permettant de dessiner une forme face à d'autres adversaires sur internet. Celui qui dessine le mieux la forme proposée remporte un point, la personne ayant le plus de point rempotre la partie.
+
+##Technologies utilisées :
+	- Node
+	- Node Webkit
+	- Heroku
+	- Grunt
+
 ## Node :
     $ node server.js
 Puis ouvrir un navigateur sur l'adresse http://127.0.0.1.
@@ -31,6 +40,10 @@ Il est également possible d'ouvrir un onglet sur l'adresse http://127.0.0.1 de 
 	
 ###Utilisation :
 Se rendre sur l'adresse de votre application (ici http://redrawhtml5.herokuapp.com).
+
+##Membres de l'équipes
+- [Thomas](https://github.com/Thom-x)
+- [Florian](https://github.com/F4T4liS)
 
 
 
