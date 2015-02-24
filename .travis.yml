@@ -1,3 +1,10 @@
 language: node_js
 node_js:
-  - 0.10
+- '0.10'
+deploy:
+  provider: heroku
+  strategy: git
+  api_key:
+    secure: cyICTn6EI+QthmlQxa6WjjCzIkWDzbCMUZVypv3iTO+hOyBabGpHTco2kamDgm3cOpMmUt5Z4uINT8ADoV+b+q1wRgOEAEINdPhI3rZmFqustSvSwVJu2Op79Tx3IW4DZgK3TpvwsUc+qn8msqlN6FscYJRB9umfrsAr2+2yg8g=
+  app:
+    secure: QCHywjJKR7czOiEKmS32mHtaRO3edpzqK+3HRioU2bYHrNpcuXaEIH+PXj/4fhqrHkMbaPjPABUcCrwHRonLj+n8DOpSCjQSfQhzBw8txU+feduWBBcM6ZdGZtTBAPGtQn11/hbTEgrk4jnq1r+GEvRw2BCvIvF/gKfYJIYUHpw=
