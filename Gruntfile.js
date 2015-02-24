@@ -26,14 +26,23 @@ module.exports = function(grunt) {
             './node_modules/jquery/dist/jquery.min.js',
             './node_modules/bootstrap/dist/js/bootstrap.min.js',
             './node_modules/resemblejs/resemble.js',
-            './node_modules/express/**/*',
-            './node_modules/mustache-express/**/*',
             './node_modules/socket.io/**/*',
-            './node_modules/mustache/mustache.min.js'
-            ]
-        }
+            './node_modules/mustache-express/**/*',
+            './node_modules/express/**/*',
+            './node_modules/mustache/mustache.min.js']
+        },
+        autoprefixer: {
+            options: {
+            },
+            single_file: {
+              options: {
+              },
+              src: 'css/style.css',
+              dest: 'css/style.min.css'
+            }
+          }
     })
-
     grunt.loadNpmTasks('grunt-node-webkit-builder');
-    grunt.registerTask('default', ['nodewebkit']);
+    grunt.loadNpmTasks('grunt-autoprefixer');
+    grunt.registerTask('default', ['autoprefixer','nodewebkit']);
 };

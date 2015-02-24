@@ -13,7 +13,6 @@ nav, .top-bar, .content
 body,html{
 	background-color: #F2F2F2;
 	color:#7F7F7F;
-	-webkit-user-select: none;
 }
 
 .content
@@ -67,7 +66,8 @@ body.notNode .navbar-default
 #quit span{
 	-webkit-app-region: no-drag;
 	color: #FFFFFF;
-	transition: all .25s;
+	-webkit-transition: all .25s;
+	        transition: all .25s;
 }
 
 #quit span:hover{
@@ -108,22 +108,39 @@ canvas, .result{
 	border-top: none; 
 }
 
-@keyframes rotate {
+@-webkit-keyframes rotate {
 	from {
-		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
 	}
 	to { 
-		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg); 
+		        transform: rotate(360deg);
+	}
+}
+
+@keyframes rotate {
+	from {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	to { 
+		-webkit-transform: rotate(360deg); 
+		        transform: rotate(360deg);
 	}
 }
 
 img.loading
 {
 	margin-top: 10px;
-	animation-name:             rotate; 
-	animation-duration:         1s; 
-	animation-iteration-count:  infinite;
-	transition-timing-function: linear;
+	-webkit-animation-name:             rotate;
+	        animation-name:             rotate; 
+	-webkit-animation-duration:         1s; 
+	        animation-duration:         1s; 
+	-webkit-animation-iteration-count:  infinite; 
+	        animation-iteration-count:  infinite;
+	-webkit-transition-timing-function: linear;
+	        transition-timing-function: linear;
 	height: 42px;
 }
 
@@ -142,7 +159,25 @@ img.loading
 }
 
 .saved{
-	animation: saved 2s forwards; 
+	-webkit-animation: saved 2s forwards;
+	        animation: saved 2s forwards; 
+}
+
+
+@-webkit-keyframes saved{
+	0%   {
+		opacity: 0;
+	}
+	25%  {
+		opacity: 1;
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
 }
 
 
@@ -152,21 +187,25 @@ img.loading
 	}
 	25%  {
 		opacity: 1;
-		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
 	}
 	100% {
 		opacity: 0;
-		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
 	}
 }
 
 .winner{
 	color: #F7C248;
-	transform : translate3d(-46px,32px,0) rotateZ(-27deg);
+	-webkit-transform : translate3d(-46px,32px,0) rotateZ(-27deg);
+	        transform : translate3d(-46px,32px,0) rotateZ(-27deg);
 }
 .looser{
 	color: #E05A5A;
-	transform : translate3d(-52px,32px,0) rotateZ(-207deg);
+	-webkit-transform : translate3d(-52px,32px,0) rotateZ(-207deg);
+	        transform : translate3d(-52px,32px,0) rotateZ(-207deg);
 }
 
 .infoIcon

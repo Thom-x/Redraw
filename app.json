@@ -1,0 +1,7 @@
+{
+  "name": "Redraw",
+  "description": "A simple redraw web application",
+  "repository": "https://github.com/Thom-x/Redraw",
+  "logo": "https://raw.githubusercontent.com/Thom-x/Redraw/master/images/ico.png",
+  "keywords": ["node", "redraw", "socket","istia"]
+}
