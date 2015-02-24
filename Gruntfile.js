@@ -7,10 +7,10 @@ module.exports = function(grunt) {
                 winIco: './images/ico.ico',
                 macIcns: './images/ico.ico',
                 // choose what platforms to compile for here
-                mac: true,
+                mac: false,
                 win: true,
-                linux32: true,
-                linux64: true
+                linux32: false,
+                linux64: false
             },
             src: [
             './package.json',

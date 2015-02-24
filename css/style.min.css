@@ -13,6 +13,7 @@ nav, .top-bar, .content
 body,html{
 	background-color: #F2F2F2;
 	color:#7F7F7F;
+	-webkit-user-select: none;
 }
 
 .content

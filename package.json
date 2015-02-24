@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Redraw application",
   "main": "index.html",
+  "node-main" : "server.js",
   "single-instance": false,
   "window": {
     "icon": "images/ico.png",

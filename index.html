@@ -102,9 +102,9 @@
 			try
 			{
 				if(isNode)
-					socket = io.connect('http://' + server.url + ':80');
+					socket = io.connect('http://' + server.url  + ':' + server.port);
 				else
-					socket = io.connect('http://{{url}}:80');
+					socket = io.connect('http://' + location.origin.replace(/^http(s)?:\/\//, ''));
 
 				socket.on("connect",function(){
 					connected = true;
@@ -208,7 +208,7 @@
 		if(isNode)
 		{
 			var server = require('./server.js');
-			$.getScript( 'http://' + server.url + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
+			$.getScript( 'http://' + server.url + ':' + server.port + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
 				launchSocket();
 			});
 			setTimeout(function(){
@@ -222,7 +222,7 @@
 		else
 		{
 			var s = document.createElement("script");
-			$.getScript( 'http://{{url}}/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
+			$.getScript( 'http://' + location.origin.replace(/^http(s)?:\/\//, '') + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
 				launchSocket();
 			});
 			setTimeout(function(){

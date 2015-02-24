@@ -25,13 +25,10 @@ Ouvrir le binaire correspondant à votre OS.
 Il est également possible d'ouvrir un onglet sur l'adresse http://127.0.0.1 de votre navigateur une fois une instance de node webkit ouverte (le serveur est lancé par node webkit).
 
 ## Heroku : 
-###Déploiment : 
-    $ heroku login
-    $ heroku git:clone -a redrawhtml5
-    $ cd redrawhtml5
-    $ git add .
-    $ git commit -am "make it better"
-    $ git push heroku master
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/Thom-x/Redraw)
+
+###Déploiment :
+Utiliser le boutton ci-dessus puis naviguez vers l'url de votre application heroku.
     
 ###Test :
 
