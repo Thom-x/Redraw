@@ -16,7 +16,7 @@
     "resizable": false
   },
   "scripts": {
-    "test": "./node_modules/jshint/bin/jshint server.js"
+    "test": "jshint server.js"
   },
   "author": "",
   "license": "ISC",

@@ -25,10 +25,10 @@ console.log("listening on port " + port);
 /*===================================
 =            Global vars            =
 ===================================*/
-var players = {}
-var lobbies = {}
+var players = {};
+var lobbies = {};
 var lobbyCount = 0;
-var interval = undefined;
+var interval;
 var _modelCount = 4;
 
 var _drawTime = 5000;
@@ -43,28 +43,28 @@ var _minPlayer = 2;
 // object.watch
 if (!Object.prototype.watch) {
 	Object.defineProperty(Object.prototype, "watch", {
-		  enumerable: false
-		, configurable: true
-		, writable: false
-		, value: function (prop, handler) {
+		enumerable: false,
+		configurable: true,
+		writable: false,
+		value: function (prop, handler) {
 			var
-			  oldval = this[prop]
-			, newval = oldval
-			, getter = function () {
+			oldval = this[prop],
+			newval = oldval,
+			getter = function () {
 				return newval;
-			}
-			, setter = function (val) {
+			},
+			setter = function (val) {
 				oldval = newval;
-				return newval = handler.call(this, prop, oldval, val);
-			}
-			;
+				newval = handler.call(this, prop, oldval, val);
+				return newval;
+			};
 			
 			if (delete this[prop]) { // can't watch constants
 				Object.defineProperty(this, prop, {
-					  get: getter
-					, set: setter
-					, enumerable: true
-					, configurable: true
+					get: getter,
+					set: setter,
+					enumerable: true,
+					configurable: true
 				});
 			}
 		}
@@ -74,10 +74,10 @@ if (!Object.prototype.watch) {
 // object.unwatch
 if (!Object.prototype.unwatch) {
 	Object.defineProperty(Object.prototype, "unwatch", {
-		  enumerable: false
-		, configurable: true
-		, writable: false
-		, value: function (prop) {
+		enumerable: false,
+		configurable: true,
+		writable: false,
+		value: function (prop) {
 			var val = this[prop];
 			delete this[prop]; // remove accessors
 			this[prop] = val;
@@ -91,13 +91,13 @@ io.set("heartbeat interval", 5000);
 
 function count(object)
 {
-	var count = 0;
+	var countTmp = 0;
 	for (var k in object) {
 	    if (object.hasOwnProperty(k)) {
-	       ++count;
+	       ++countTmp;
 	    }
 	}	
-	return count;
+	return countTmp;
 }
 
 /*===============================
@@ -136,7 +136,7 @@ io.sockets.on('connect',function(socket) {
 	});
 
 	socket.on('nickname',function(data){
-		if(data.trim() != "")
+		if(data.trim() !== "")
 			players[socket.id].nickname = data.trim();
 		else
 			players[socket.id].nickname = "Guest";
@@ -186,7 +186,7 @@ var startGame = function(lobbyId)
 			emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
 		},_compareTimeOut);		
 	},_drawTime);
-}
+};
 
 /**
 *
@@ -205,7 +205,7 @@ var stopGame = function(lobbyId)
 	lobbies[lobbyId].full = false;
 	console.log("stop " + lobbies[lobbyId].id);
 	emitLobby(lobbyId,'stop');
-}
+};
 
 /**
 *
@@ -216,7 +216,7 @@ function lobbyAvailable()
 {
 	var choosenLobbyId = -1;
 	var choosenLobbyCount = -1;
-	for(currentLobbyId in lobbies)
+	for(var currentLobbyId in lobbies)
 	{
 		if(!lobbies[currentLobbyId].playing && !lobbies[currentLobbyId].full)
 		{
@@ -237,11 +237,11 @@ function lobbyAvailable()
 **/
 function lobbyScore()
 {
-	var winner = undefined;
-	var looser = undefined;
+	var winner;
+	var looser;
 	var bestScore = 0;
 	var worstScore = 999;
-	for(currentPlayerIndex in this.results)
+	for(var currentPlayerIndex in this.results)
 	{
 		var currentPlayer = this.results[currentPlayerIndex];
 		if(this.gameCount == 1)
@@ -300,7 +300,7 @@ function createLobby()
 		emitLobby(this.id,'playerChange',val);
 		if(val >=_minPlayer && (oldval<_minPlayer || typeof(oldval) == "undefined"))
 		{
-			if(this.interval == undefined)
+			if(this.interval === undefined)
 			{
 				startGame(this.id);
 				// new game
@@ -332,7 +332,7 @@ var emitLobby = function (lobbyId, command, data)
 {
 	try
 	{
-		for(currentPlayer in lobbies[lobbyId].players)
+		for(var currentPlayer in lobbies[lobbyId].players)
 		{
 			try{
 				io.sockets.connected[currentPlayer].emit(command,data);
@@ -344,4 +344,4 @@ var emitLobby = function (lobbyId, command, data)
 	{
 		
 	}
-}
+};
