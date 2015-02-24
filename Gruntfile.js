@@ -7,8 +7,8 @@ module.exports = function(grunt) {
                 winIco: './images/ico.ico',
                 macIcns: './images/ico.ico',
                 // choose what platforms to compile for here
-                mac: true,
-                win: true,
+                mac: false,
+                win: false,
                 linux32: true,
                 linux64: true
             },
