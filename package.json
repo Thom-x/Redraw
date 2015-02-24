@@ -1,6 +1,6 @@
 {
   "name": "Redraw",
-  "version": "1.0.0",
+  "version": "v0.2.1-beta.1",
   "description": "Redraw application",
   "main": "index.html",
   "node-main": "server.js",
@@ -16,7 +16,7 @@
     "resizable": false
   },
   "scripts": {
-    "test": "jshint server.js"
+    "test": "jshint server.js && grunt --verbose"
   },
   "author": "",
   "license": "ISC",
