@@ -1,3 +1,6 @@
+/*===============================
+=            Require            =
+===============================*/
 var express = require("express");
 var mustacheExpress = require('mustache-express');
 var app = express();
@@ -18,6 +21,9 @@ var io = require('socket.io').listen(app.listen(port));
 
 console.log("listening on port " + port);
 
+/*===================================
+=            Global vars            =
+===================================*/
 var players = {}
 var lobbies = {}
 var lobbyCount = 0;
@@ -30,6 +36,9 @@ var _compareTimeOut = 500;
 
 var _minPlayer = 2;
 
+/*===================================
+=            Watch a var            =
+===================================*/
 // object.watch
 if (!Object.prototype.watch) {
 	Object.defineProperty(Object.prototype, "watch", {
@@ -90,6 +99,9 @@ function count(object)
 	return count;
 }
 
+/*===============================
+=            Sockets            =
+===============================*/
 io.sockets.on('connect',function(socket) {
 	console.log('new player ' + socket.id);
 
@@ -141,7 +153,14 @@ io.sockets.on('connect',function(socket) {
 });
 
 	
-
+/*======================================
+=            Game managment            =
+======================================*/
+/**
+*
+* Start new game
+*
+**/
 var startGame = function(lobbyId)
 {
 	if(lobbies[lobbyId].gameCount >= 10)
@@ -168,6 +187,11 @@ var startGame = function(lobbyId)
 	},_drawTime);
 }
 
+/**
+*
+* Stop current game
+*
+**/
 var stopGame = function(lobbyId)
 {
 	clearInterval(lobbies[lobbyId].interval);
@@ -182,6 +206,11 @@ var stopGame = function(lobbyId)
 	emitLobby(lobbyId,'stop');
 }
 
+/**
+*
+* Check lobby available
+*
+**/
 function lobbyAvailable()
 {
 	var choosenLobbyId = -1;
@@ -200,6 +229,11 @@ function lobbyAvailable()
 	return choosenLobbyId;
 }
 
+/**
+*
+* Calculate lobby score/winner...
+*
+**/
 function lobbyScore()
 {
 	var winner = undefined;
@@ -238,6 +272,12 @@ function lobbyScore()
 	}
 }
 
+
+/**
+*
+* Create new lobby
+*
+**/
 function createLobby()
 {
 	console.log("create lobby " + lobbyCount);
@@ -282,6 +322,11 @@ function createLobby()
 	return lobbyCount++;
 }
 
+/**
+*
+* Emit socket event to a specified lobby
+*
+**/
 var emitLobby = function (lobbyId, command, data)
 {
 	try
