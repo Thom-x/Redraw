@@ -206,7 +206,6 @@
 		var isNode = (typeof require !== "undefined");
 		$('#game').hide();
 		$('#message').show();
-
 		var showGame = function()
 		{
 			$("body").addClass("notNode");
@@ -223,11 +222,19 @@
 
 		if(isNode)
 		{
+			document.onkeydown = function (e) {
+
+			    /// check ctrl + f key
+			    if (e.keyCode === 123) {
+			        e.preventDefault();
+			       	require('nw.gui').Window.get().showDevTools()
+					return false;
+			    }
+			}
 			$('#github-link').click(function(e)
 			{
 				e.preventDefault();
-				var gui = require('nw.gui');
-				gui.Shell.openExternal($(this).attr('href'));
+				var gui = require('nw.gui').Shell.openExternal($(this).attr('href'));
 				return false;
 			});
 			var server = require('./server.js');
