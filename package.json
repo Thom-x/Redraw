@@ -12,7 +12,7 @@
     "toolbar": false,
     "width": 1000,
     "height": 500,
-    "position": "mouse",
+    "position": "center",
     "resizable": false
   },
   "scripts": {
