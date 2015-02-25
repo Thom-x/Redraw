@@ -1,6 +1,6 @@
 
 {{#players}}
-<div class="tileContainer col-md-6">
+<div class="tileContainer col-xs-12 col-sm-6">
 	<div class="col-md-12 tile">
 		{{#won}}
 			<span class="infoIcon winner glyphicon glyphicon-king" aria-hidden="true"></span>

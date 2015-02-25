@@ -40,6 +40,9 @@
 		      <ul class="nav navbar-nav">
 		        <li><a id="playerCount" href="#"></a></li>
 		      </ul>
+		      <div class="navbar-right">
+	      			<a id="github-link" href="https://github.com/Thom-x/Redraw" target="_blank"><img class="github" src="images/github.png" alt=""></a>
+		      </div>
 	    </div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>
@@ -48,9 +51,12 @@
 		<div class="row">
 			<div class="col-md-12 text-center"><h2 id="message"></h2></div>
 			<div class="col-md-6 text-center">
-				<div id="game" class="col-md-12">
-					<div class="tileContainer col-md-6">
-						<div class="col-md-12 tile">
+				<div id="game" class="col-md-12 row">
+					<div class="col-md-12 tileContainer">
+						<div class="tile col-md-12 text-center"><h3>Draw the shape below and win the battle !</h3></div>
+					</div>
+					<div class="tileContainer col-xs-12 col-sm-6">
+						<div class="col-sm-12 tile">
 							<h4>Reference :</h4>
 							<div class="col-md-12">
 								<canvas id="canvas1" width="100px" height="100px"></canvas>
@@ -61,9 +67,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="tileContainer col-md-6">
-						<div class="col-md-12 tile">
-						<h4>Your drawing :</h4>
+					<div class="tileContainer col-xs-12 col-sm-6 ">
+						<div class="col-sm-12 tile">
+							<h4>Your drawing :</h4>
 							<div class="col-md-12">
 								<canvas id="canvas2" width="100px" height="100px"></canvas>
 							</div>
@@ -74,7 +80,13 @@
 					</div>
 				</div>
 			</div>
-				<div id="result" class="col-md-6 text-center">
+			<div class="col-md-6 text-center">
+				<div id="score" class="col-md-12 row">
+					<div class="col-md-12 tileContainer">
+						<div class="tile col-md-12 text-center"><h3>Results :</h3></div>
+					</div>
+					<div id="result" class="text-center"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -140,6 +152,7 @@
 
 				socket.on('results', function(data) {
 					disable($('#canvas2'),'#FFF');
+					$('#score').show();
 					$.get('templates/result.mst', function(template) {
 						var rendered = Mustache.render(template,data);
 						$('#result').append(rendered);
@@ -158,6 +171,7 @@
 					playing = true;
 					$('#game').show();
 					$('#message').hide();
+					$('#score').hide();
 					$('#result').html('');
 					count = data.time;
 					clearInterval(counter);
@@ -170,6 +184,7 @@
 					playing = false;
 					$('#game').hide();
 					$('#result').html('');
+					$('#score').hide();
 					$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
 				});
 
@@ -208,6 +223,13 @@
 
 		if(isNode)
 		{
+			$('#github-link').click(function(e)
+			{
+				e.preventDefault();
+				var gui = require('nw.gui');
+				gui.Shell.openExternal($(this).attr('href'));
+				return false;
+			});
 			var server = require('./server.js');
 			$.getScript( 'http://' + server.url + ':' + server.port + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
 				launchSocket();
@@ -295,8 +317,8 @@
       	var canvas = document.getElementById('canvas2');
 		canvas.onselectstart = function () { return false; }
       	function init(container, fillColor) {
-	        var canvas = container[0];
-	        canvas.node = container[0];
+	        var canvasTmp = {};
+	        canvasTmp.node = container[0];
 	        var ctx = canvas.getContext('2d');
 	        // define a custom fillCircle method
 	        ctx.fillCircle = function(x, y, radius, fillColor) {
@@ -313,7 +335,7 @@
 	        ctx.clearTo(fillColor || "#ddd");
 
 	        // bind mouse events
-	        canvas.node.onmousemove = function(e) {
+	        canvasTmp.node.onmousemove = function(e) {
 	            if (!canvas.isDrawing) {
 	               return;
 	            }
@@ -323,23 +345,24 @@
 	            var fillColor = '#4ad8bc';
 	            ctx.fillCircle(x, y, radius, fillColor);
 	        };
-	        canvas.node.onmousedown = function(e) {
+	        canvasTmp.node.onmousedown = function(e) {
 	            canvas.isDrawing = true;
 	        };
-	        canvas.node.onmouseup = function(e) {
+	        canvasTmp.node.onmouseup = function(e) {
 	            canvas.isDrawing = false;
 	        };
 	    }
 
 	    function disable(container, fillColor) {
-	        var canvas = container[0];
-	        canvas.node = container[0];
+	        var canvasTmp = {};
+	        canvasTmp.node = container[0];
+	        canvas.isDrawing = false;
 	        // bind mouse events
-	        canvas.node.onmousemove = function(e) {
+	        canvasTmp.node.onmousemove = function(e) {
 	        };
-	        canvas.node.onmousedown = function(e) {
+	        canvasTmp.node.onmousedown = function(e) {
 	        };
-	        canvas.node.onmouseup = function(e) {
+	        canvasTmp.node.onmouseup = function(e) {
 	        };
 	    }
 

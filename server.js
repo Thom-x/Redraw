@@ -183,7 +183,8 @@ var startGame = function(lobbyId)
 		lobbies[lobbyId].intervalCompareSend = setTimeout(function()
 		{
 			lobbies[lobbyId].score();
-			emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
+			if(lobbies[lobbyId].results.length > 0)
+				emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
 		},_compareTimeOut);		
 	},_drawTime);
 };

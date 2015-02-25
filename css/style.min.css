@@ -18,12 +18,13 @@ body,html{
 
 .content
 {
-	margin-top: 76px;
+	margin-top: 114px;
 }
 
 body.notNode .content
 {
 	margin-top: 50px;
+	margin-top: 88px;
 }
 
 
@@ -57,6 +58,11 @@ body.notNode .navbar-default
 	height: 42px;
 	margin: -11px;
 	margin-left: 0px;
+}
+
+.github{
+	height: 42px;
+	margin: 4px;
 }
 
 #quit{
@@ -213,4 +219,25 @@ img.loading
 {
 	font-size: 2em;
 	line-height: 0;
+}
+
+.row {
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+::-webkit-input-placeholder {
+   color: #E1E1E1 !important;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: #E1E1E1 !important;  
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: #E1E1E1 !important;  
+}
+
+:-ms-input-placeholder {  
+   color: #E1E1E1 !important;  
 }
