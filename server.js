@@ -303,6 +303,15 @@ function createLobby()
 		{
 			if(this.interval === undefined)
 			{
+				for(var currentPlayerIndex in this.results)
+				{
+					try
+					{
+						var currentPlayer = this.results[currentPlayerIndex];
+						players[this.results[currentPlayerIndex].id].score = 0;
+						this.results[currentPlayerIndex].score = players[this.results[currentPlayerIndex].id].score;
+					}catch(e){}
+				}
 				startGame(this.id);
 				// new game
 				this.interval = setInterval(function(that){
