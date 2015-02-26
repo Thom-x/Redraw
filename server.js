@@ -279,19 +279,19 @@ function lobbyScore()
 	}
 	if(this.gameCount == 10)
 	{
-		for(var currentPlayerIndex in this.results)
+		for(var currentPlayerIndex2 in this.results)
 		{
-			var currentPlayer = this.results[currentPlayerIndex];
-			if(currentPlayer.score > gameBestScore)
+			var currentPlayer2 = this.results[currentPlayerIndex];
+			if(currentPlayer2.score > gameBestScore)
 			{
-				gameBestScore = currentPlayer.score;
-				gameWinner = currentPlayer;
+				gameBestScore = currentPlayer2.score;
+				gameWinner = currentPlayer2;
 			}
 
-			if(currentPlayer.score < gameWorstScore)
+			if(currentPlayer2.score < gameWorstScore)
 			{
-				gameWorstScore = currentPlayer.score;
-				gameLooser = currentPlayer;
+				gameWorstScore = currentPlayer2.score;
+				gameLooser = currentPlayer2;
 			}
 		}
 	}
