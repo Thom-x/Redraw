@@ -1,4 +1,8 @@
-# Redraw [![Build Status](https://travis-ci.org/Thom-x/Redraw.svg?branch=master)](https://travis-ci.org/Thom-x/Redraw)
+# Redraw
+
+[![Build Status](https://travis-ci.org/Thom-x/Redraw.svg?branch=master)](https://travis-ci.org/Thom-x/Redraw)
+[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+
 <img src="https://raw.githubusercontent.com/Thom-x/Redraw/master/images/ico.png" alt="alt text" width="30%" height="30%">
 
 Demo Heroku : http://redrawhtml5.herokuapp.com
