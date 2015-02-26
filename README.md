@@ -11,6 +11,7 @@ Application web permettant de dessiner une forme face à d'autres adversaires su
 - Node Webkit
 - Heroku
 - Grunt
+- Bower
 
 ## Node :
     $ node server.js
