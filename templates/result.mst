@@ -1,14 +1,14 @@
 
 {{#players}}
 <div class="tileContainer col-xs-12 col-sm-6">
-	<div class="col-md-12 tile">
-		{{#won}}
+	<div class="col-md-12 tile{{#won}} won{{/won}}{{#lose}} lose{{/lose}}">
+		{{#gameWon}}
 			<span class="infoIcon winner glyphicon glyphicon-king" aria-hidden="true"></span>
-		{{/won}}
-		{{#lose}}
+		{{/gameWon}}
+		{{#gameLose}}
 			<span class="infoIcon looser glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
-		{{/lose}}
-		<h4>{{nickname}}</h4><strong>{{score}}</strong>
+		{{/gameLose}}
+		<h4>{{nickname}}{{#gameWon}} won the battle !{{/gameWon}}</h4><strong>{{score}}</strong>
 		<div class="col-md-12">
 			<img class="result" src="{{getImageDataUrl}}" alt="">
 		</div>

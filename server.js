@@ -242,12 +242,17 @@ function lobbyScore()
 	var looser;
 	var bestScore = 0;
 	var worstScore = 999;
+
+	var gameWinner;
+	var gameLooser;
+	var gameBestScore = 0;
+	var gameWorstScore = 10;
 	for(var currentPlayerIndex in this.results)
 	{
 		var currentPlayer = this.results[currentPlayerIndex];
 		if(this.gameCount == 1)
 		{
-			players[this.results[currentPlayerIndex].id].score = 0;
+			players[currentPlayer.id].score = 0;
 		}
 		if(currentPlayer.match > bestScore)
 		{
@@ -260,7 +265,7 @@ function lobbyScore()
 			looser = currentPlayer;
 			worstScore = currentPlayer.match;
 		}
-		this.results[currentPlayerIndex].score = players[this.results[currentPlayerIndex].id].score;
+		currentPlayer.score = players[currentPlayer.id].score;
 	}
 	if(typeof(winner) != "undefined")
 	{
@@ -272,6 +277,33 @@ function lobbyScore()
 	{
 		looser.lose = true;
 	}
+	if(this.gameCount == 10)
+	{
+		for(var currentPlayerIndex in this.results)
+		{
+			var currentPlayer = this.results[currentPlayerIndex];
+			if(currentPlayer.score > gameBestScore)
+			{
+				gameBestScore = currentPlayer.score;
+				gameWinner = currentPlayer;
+			}
+
+			if(currentPlayer.score < gameWorstScore)
+			{
+				gameWorstScore = currentPlayer.score;
+				gameLooser = currentPlayer;
+			}
+		}
+	}
+	if(typeof(gameWinner) != "undefined")
+	{
+		gameWinner.gameWon = true;
+	}
+	if(typeof(gameLooser) != "undefined" && gameWinner != gameLooser)
+	{
+		gameLooser.gameLose = true;
+	}
+
 }
 
 
@@ -294,7 +326,7 @@ function createLobby()
 	lobbies[lobbyCount].intervalCompareSend=undefined;
 	lobbies[lobbyCount].score=lobbyScore;
 	lobbies[lobbyCount].gameCount=0;
-
+	lobbies[lobbyCount].results = [];
 
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
 		console.log("lobby " + this.id + " : " + oldval + " player to " + val);
@@ -308,8 +340,8 @@ function createLobby()
 					try
 					{
 						var currentPlayer = this.results[currentPlayerIndex];
-						players[this.results[currentPlayerIndex].id].score = 0;
-						this.results[currentPlayerIndex].score = players[this.results[currentPlayerIndex].id].score;
+						players[currentPlayer.id].score = 0;
+						currentPlayer.score = players[currentPlayer.id].score;
 					}catch(e){}
 				}
 				startGame(this.id);
