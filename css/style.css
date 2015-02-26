@@ -210,3 +210,7 @@ img.loading
 .lose{
 	background: rgb(255, 200, 200);
 }
+
+.toast-info {
+  background-color: #4AD8BC;
+}
