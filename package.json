@@ -4,7 +4,11 @@
   "description": "Redraw application",
   "main": "index.html",
   "node-main": "server.js",
-  "single-instance": false,
+  "single-instance": true,
+  "repository": {
+  "type": "git",
+  "url": "git@github.com:Thom-x/Redraw.git"
+  },
   "window": {
     "icon": "images/ico.png",
     "transparent": false,
@@ -16,7 +20,9 @@
     "resizable": false
   },
   "scripts": {
-    "test": "jshint server.js && grunt --verbose"
+    "start": "node server.js",
+    "postinstall": "bower install",
+    "test": "jshint server.js && grunt build --verbose && grunt default --verbose"
   },
   "author": "",
   "license": "ISC",
@@ -28,7 +34,8 @@
     "mustache": "^1.0.0",
     "mustache-express": "^1.2.1",
     "resemblejs": "^1.2.0",
-    "socket.io": "^1.3.2"
+    "socket.io": "^1.3.2",
+    "bower": "~1.3.12"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
