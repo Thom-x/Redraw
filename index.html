@@ -2,6 +2,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="theme-color" content="#3dd7bb">
 	<title>Redraw</title>
 	<link rel="icon" href="images/ico.ico" />
 	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
@@ -359,9 +360,41 @@
 	        canvasTmp.node.onmousedown = function(e) {
 	            canvas.isDrawing = true;
 	        };
+
 	        canvasTmp.node.onmouseup = function(e) {
 	            canvas.isDrawing = false;
 	        };
+
+
+			window.blockScroll = false;
+			$(window).on('touchstart', function(e)
+			{
+			    if (e.target.id  === "canvas2")
+			    {
+			        blockScroll = true;
+			        canvas.isDrawing = true;
+			    }
+			});
+			$(window).on('touchend', function()
+			{
+			    blockScroll = false;
+			    canvas.isDrawing = false;
+			});
+			$(window).on('touchmove', function(e)
+			{
+			    if(blockScroll)
+			    {
+			    	if (!canvas.isDrawing) {
+			    		return;
+			    	}
+			    	var x = e.originalEvent.touches[0].pageX - canvasTmp.node.offsetLeft;
+			    	var y = e.originalEvent.touches[0].pageY - canvasTmp.node.offsetTop;
+		            var radius = 3; // or whatever
+		            var fillColor = '#4ad8bc';
+		            ctx.fillCircle(x, y, radius, fillColor);
+			        e.preventDefault();
+			    }
+			});
 	    }
 
 	    function disable(container, fillColor) {
@@ -375,7 +408,11 @@
 	        };
 	        canvasTmp.node.onmouseup = function(e) {
 	        };
-	    }
+
+	        $(window).off('touchstart');
+			$(window).off('touchend');
+			$(window).off('touchmove');
+		}
 
 		var compare = function()
 		{
