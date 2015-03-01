@@ -57,7 +57,7 @@
 					<div class="col-md-12 tileContainer">
 						<div class="tile col-md-12 text-center"><h3>Draw the shape below and win the battle !</h3></div>
 					</div>
-					<div class="tileContainer col-xs-12 col-sm-6">
+					<div id="topGame" class="tileContainer col-xs-12 col-sm-6">
 						<div class="col-sm-12 tile">
 							<h4>Reference :</h4>
 							<div class="col-md-12">
@@ -84,7 +84,7 @@
 			</div>
 			<div class="col-md-6 text-center">
 				<div id="score" class="col-md-12 row">
-					<div class="col-md-12 tileContainer">
+					<div id="topResults" class="col-md-12 tileContainer">
 						<div class="tile col-md-12 text-center"><h3>Results :</h3></div>
 					</div>
 					<div id="result" class="text-center"></div>
@@ -93,6 +93,7 @@
 		</div>
 	</div>
 	<script src="node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="node_modules/jquery.scrollto/jquery.scrollTo.min.js"></script>
 	<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="node_modules/resemblejs/resemble.js"></script>
 	<script src="node_modules/mustache/mustache.min.js"></script>
@@ -175,9 +176,13 @@
 				socket.on('start',function(data){
 					playing = true;
 					$('#game').show();
-					$('#message').hide();
-					$('#score').hide();
-					$('#result').html('');
+					$('body').scrollTo('#topGame', 400,{
+						onAfter:function(){
+							$('#message').hide();
+							$('#score').hide();
+							$('#result').html('');
+						}
+					});
 					count = data.time;
 					clearInterval(counter);
 					counter = setInterval(timer, 10);

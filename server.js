@@ -33,7 +33,7 @@ var _modelCount = 4;
 
 var _drawTime = 5000;
 var _compareTime = 5000;
-var _compareTimeOut = 500;
+var _compareTimeOut = 1000;
 
 var _minPlayer = 2;
 
