@@ -16,7 +16,6 @@ module.exports = function(grunt) {
             './package.json',
             './server.js',
             './index.html',
-            './nw-start.html',
             './js/**/*',
             './templates/**/*',
             './images/**/*',
@@ -29,9 +28,11 @@ module.exports = function(grunt) {
             './node_modules/socket.io/**/*',
             './node_modules/mustache-express/**/*',
             './node_modules/express/**/*',
-            './node_modules/cheet.js/**/*',
+            './node_modules/cheet.js/cheet.min.js',
             './node_modules/mustache/mustache.min.js',
-            './bower_components/toastr/**/*']
+            './bower_components/toastr/toastr.min.css',
+            './bower_components/toastr/toastr.min.js',
+            './node_modules/jquery.scrollto/jquery.scrollTo.min.js']
         },
         autoprefixer: {
             options: {
