@@ -34,6 +34,7 @@ var _modelCount = 4;
 var _drawTime = 5000;
 var _compareTime = 5000;
 var _compareTimeOut = 1000;
+var _waitReadyTimeout = 1000;
 
 var _minPlayer = 2;
 
@@ -104,7 +105,7 @@ function count(object)
 =            Sockets            =
 ===============================*/
 io.sockets.on('connect',function(socket) {
-	console.log('new player ' + socket.id);
+	console.log('new player %s',socket.id);
 
 	players[socket.id] = {};
 	players[socket.id].nickname = "Guest";
@@ -133,6 +134,11 @@ io.sockets.on('connect',function(socket) {
 		data.id = socket.id;
 		data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
 		lobbies[players[socket.id].lobby].results.push(data);
+	});
+
+	socket.on('ready',function(data){
+		lobbies[players[socket.id].lobby].players[socket.id].ready = true;
+		getReady(players[socket.id].lobby);
 	});
 
 	socket.on('nickname',function(data){
@@ -164,27 +170,28 @@ io.sockets.on('connect',function(socket) {
 **/
 var startGame = function(lobbyId)
 {
-	if(lobbies[lobbyId].gameCount >= 10)
+	var currentLobby = lobbies[lobbyId];
+	if(currentLobby.gameCount >= 10)
 	{
-		lobbies[lobbyId].gameCount = 0;
+		currentLobby.gameCount = 0;
 	}
-	lobbies[lobbyId].gameCount++;
-	lobbies[lobbyId].playing = true;
-	lobbies[lobbyId].results = [];
-	console.log("start  "+ lobbies[lobbyId].id);
+	currentLobby.gameCount++;
+	currentLobby.playing = true;
+	currentLobby.results = [];
+	console.log("lobby %s : start  ",lobbyId);
 	var data = {};
 	data.index = parseInt((Math.random()*(_modelCount-1)+1).toFixed());
 	data.time = _drawTime/10-50;
 	emitLobby(lobbyId,'start',data);
-	lobbies[lobbyId].intervalCompare = setTimeout(function()
+	currentLobby.intervalCompare = setTimeout(function()
 	{
-		console.log("compare " + lobbyId);
+		console.log("lobby %s : compare ",lobbyId);
 		emitLobby(lobbyId,'compare');
-		lobbies[lobbyId].intervalCompareSend = setTimeout(function()
+		currentLobby.intervalCompareSend = setTimeout(function()
 		{
-			lobbies[lobbyId].score();
-			if(lobbies[lobbyId].results.length > 0)
-				emitLobby(lobbyId,'results',{players : lobbies[lobbyId].results});
+			currentLobby.score();
+			if(currentLobby.results.length > 0)
+				emitLobby(lobbyId,'results',{players : currentLobby.results});
 		},_compareTimeOut);		
 	},_drawTime);
 };
@@ -196,15 +203,16 @@ var startGame = function(lobbyId)
 **/
 var stopGame = function(lobbyId)
 {
-	clearInterval(lobbies[lobbyId].interval);
-	clearInterval(lobbies[lobbyId].intervalCompare);
-	clearInterval(lobbies[lobbyId].intervalCompareSend);
-	lobbies[lobbyId].interval = undefined;
-	lobbies[lobbyId].intervalCompare = undefined;
-	lobbies[lobbyId].intervalCompareSend = undefined;
-	lobbies[lobbyId].playing = false;
-	lobbies[lobbyId].full = false;
-	console.log("stop " + lobbies[lobbyId].id);
+	var currentLobby = lobbies[lobbyId];
+	clearInterval(currentLobby.interval);
+	clearInterval(currentLobby.intervalCompare);
+	clearInterval(currentLobby.intervalCompareSend);
+	currentLobby.interval = undefined;
+	currentLobby.intervalCompare = undefined;
+	currentLobby.intervalCompareSend = undefined;
+	currentLobby.playing = false;
+	currentLobby.full = false;
+	console.log("lobby %s : stop ",lobbyId);
 	emitLobby(lobbyId,'stop');
 };
 
@@ -306,6 +314,67 @@ function lobbyScore()
 
 }
 
+function getReady(lobbyId)
+{
+	var currentLobby = lobbies[lobbyId];
+	var playerCount = 0;
+	var playerReady = 0;
+	for(var currentPlayerIndex in currentLobby.players)
+	{
+		var currentPlayer = currentLobby.players[currentPlayerIndex];
+		playerCount++;
+		if(currentPlayer.ready)
+		{
+			playerReady++;
+		}
+		var ready = [];
+		for(var currentPlayerIndex2 in currentLobby.players)
+		{
+			var currentPlayer2 = currentLobby.players[currentPlayerIndex2];
+			var currentPlayerObject = {};
+			if(currentPlayerIndex2 === currentPlayerIndex)
+			{
+				currentPlayerObject.you = true;
+			}
+			else
+			{
+				currentPlayerObject.you = false;
+			}
+			currentPlayerObject.nickname = currentPlayer2.nickname;
+			currentPlayerObject.ready = currentPlayer2.ready;
+			ready.push(currentPlayerObject);
+		}
+		try{
+			io.sockets.connected[currentPlayerIndex].emit('getReady',{players : ready});
+		}catch(e)
+		{
+		}
+	}
+	console.log("lobby %s : %s players ready over %s",lobbyId, playerReady, playerCount);
+	setTimeout(function(){
+		if(playerCount > 0 && playerCount === playerReady)
+		{
+			if(currentLobby.interval === undefined)
+			{
+				for(var currentPlayerIndex in currentLobby.results)
+				{
+					try
+					{
+						var currentPlayer = currentLobby.results[currentPlayerIndex];
+						players[currentPlayer.id].score = 0;
+						currentPlayer.score = players[currentPlayer.id].score;
+					}catch(e){}
+				}
+				startGame(currentLobby.id);
+				// new game
+				currentLobby.interval = setInterval(function(that){
+					startGame(that.id);
+				}, _drawTime + _compareTime,currentLobby);
+			}
+		}
+	},_waitReadyTimeout);
+}
+
 
 /**
 *
@@ -314,7 +383,7 @@ function lobbyScore()
 **/
 function createLobby()
 {
-	console.log("create lobby " + lobbyCount);
+	console.log("lobby %s : create",lobbyCount);
 	lobbies[lobbyCount] = {};
 	lobbies[lobbyCount].id=lobbyCount;
 	lobbies[lobbyCount].full = 0;
@@ -329,27 +398,18 @@ function createLobby()
 	lobbies[lobbyCount].results = [];
 
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
-		console.log("lobby " + this.id + " : " + oldval + " player to " + val);
+		console.log("lobby %s : %s players to %s",this.id, oldval, val);
 		emitLobby(this.id,'playerChange',val);
 		if(val >=_minPlayer && (oldval<_minPlayer || typeof(oldval) == "undefined"))
 		{
-			if(this.interval === undefined)
+			for(var currentPlayerIndex in this.players)
 			{
-				for(var currentPlayerIndex in this.results)
+				try
 				{
-					try
-					{
-						var currentPlayer = this.results[currentPlayerIndex];
-						players[currentPlayer.id].score = 0;
-						currentPlayer.score = players[currentPlayer.id].score;
-					}catch(e){}
-				}
-				startGame(this.id);
-				// new game
-				this.interval = setInterval(function(that){
-					startGame(that.id);
-				}, _drawTime + _compareTime,this);
+					this.players[currentPlayerIndex].ready = false;
+				}catch(e){}
 			}
+			getReady(this.id);
 		}
 		else if(val >=_minPlayer && (oldval>=_minPlayer || typeof(oldval) == "undefined"))
 		{

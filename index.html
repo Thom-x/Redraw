@@ -154,7 +154,22 @@
 
 				socket.on('playerChange', function(count) {
 					var s = count > 1 ? "s" : "";
-					$("#playerCount").text("Currently " + count + " player" + s +" connected.")
+					$("#playerCount").text("Currently " + count + " player" + s +" connected.");
+				});
+
+				socket.on('getReady', function(data) {
+					$.get('templates/getReady.mst', function(template) {
+						var rendered = Mustache.render(template,data);
+						$('#message').html(rendered);
+						$('#score').hide();
+						$('#result').html('');
+						$("#ready").on("click",function(){
+							if($(this).prop("checked"))
+							{
+								socket.emit('ready');
+							}
+						});
+					});
 				});
 				
 
@@ -177,9 +192,9 @@
 
 				socket.on('start',function(data){
 					playing = true;
-					$('#game').show();
 					$('body').scrollTo('#topGame', 400,{
 						onAfter:function(){
+							$('#game').show();
 							$('#message').hide();
 							$('#score').hide();
 							$('#result').html('');

@@ -1,0 +1,13 @@
+<div class="col-md-12 tileContainer">
+	<div class="tile col-xs-12 col-md-6 text-center"><h3>Game found ! Get ready ...</h3></div>
+</div>
+{{#players}}
+<div class="tileContainer col-xs-12 col-sm-3">
+	<div class="col-md-12 tile{{#ready}} won{{/ready}}{{^ready}} lose{{/ready}}">
+		<h4>{{nickname}}</h4>
+		<div class="col-md-12">
+			<input type="checkbox" {{#ready}}checked disabled{{/ready}} name="ready"{{#you}} id="ready"{{/you}}{{^you}} disabled{{/you}} style="width: 37px;height: 37px;">
+		</div>
+	</div>
+</div>
+{{/players}}
