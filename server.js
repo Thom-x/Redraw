@@ -314,6 +314,11 @@ function lobbyScore()
 
 }
 
+/**
+*
+* Initiate "getReady" screen for players
+*
+**/
 function getReady(lobbyId)
 {
 	var currentLobby = lobbies[lobbyId];

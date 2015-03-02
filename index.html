@@ -265,30 +265,45 @@
 				return false;
 			});
 			var server = require('./server.js');
-			$.getScript( 'http://' + server.url + ':' + server.port + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
-				launchSocket();
-			});
-			setTimeout(function(){
-				if(connected)
-				{
-					splashing = false;
-					showGameNode();
-				}
-			},5000)
+			var getSocketNode = function(){
+				$.getScript('http://' + server.url + ':' + server.port + '/socket.io/socket.io.js')
+				.done(function( script, textStatus ) {
+					launchSocket();
+					var waitingSocket = setInterval(function(){
+						if(connected)
+						{
+							clearInterval(waitingSocket);
+							splashing = false;
+							showGameNode();
+						}
+					},500)
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					setTimeout(getSocketNode,1000);
+				});
+			}
+			getSocketNode();
 		}
 		else
 		{
-			var s = document.createElement("script");
-			$.getScript( 'http://' + location.origin.replace(/^http(s)?:\/\//, '') + '/socket.io/socket.io.js', function( data, textStatus, jqxhr ) {
-				launchSocket();
-			});
-			setTimeout(function(){
-				if(connected)
-				{
-					splashing = false;
-					showGame();
-				}
-			},2000)
+			var getSocketNotNode = function(){
+				$.getScript('http://' + location.origin.replace(/^http(s)?:\/\//, '') + '/socket.io/socket.io.js')
+				.done(function( script, textStatus ) {
+					launchSocket();
+					var waitingSocket = setInterval(function(){
+						if(connected)
+						{
+							clearInterval(waitingSocket);
+							splashing = false;
+							showGame();
+						}
+					},3000)
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					setTimeout(getSocketNotNode,1000);
+				});
+			}
+			getSocketNotNode();
 		}
 
 		$("#quit span").on('click',function(){
