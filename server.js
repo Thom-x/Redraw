@@ -37,6 +37,7 @@ var _compareTimeOut = 1000;
 var _waitReadyTimeout = 1000;
 
 var _minPlayer = 2;
+var _gameCount = 10;
 
 /*===================================
 =            Watch a var            =
@@ -171,7 +172,7 @@ io.sockets.on('connect',function(socket) {
 var startGame = function(lobbyId)
 {
 	var currentLobby = lobbies[lobbyId];
-	if(currentLobby.gameCount >= 10)
+	if(currentLobby.gameCount >= _gameCount)
 	{
 		currentLobby.gameCount = 0;
 	}
@@ -254,7 +255,7 @@ function lobbyScore()
 	var gameWinner;
 	var gameLooser;
 	var gameBestScore = 0;
-	var gameWorstScore = 10;
+	var gameWorstScore = _gameCount;
 	for(var currentPlayerIndex in this.results)
 	{
 		var currentPlayer = this.results[currentPlayerIndex];
@@ -285,11 +286,11 @@ function lobbyScore()
 	{
 		looser.lose = true;
 	}
-	if(this.gameCount == 10)
+	if(this.gameCount == _gameCount)
 	{
 		for(var currentPlayerIndex2 in this.results)
 		{
-			var currentPlayer2 = this.results[currentPlayerIndex];
+			var currentPlayer2 = this.results[currentPlayerIndex2];
 			if(currentPlayer2.score > gameBestScore)
 			{
 				gameBestScore = currentPlayer2.score;
