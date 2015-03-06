@@ -3,6 +3,7 @@
 ===============================*/
 var express = require("express");
 var mustacheExpress = require('mustache-express');
+var config = require('config');
 var app = express();
 var port = process.env.PORT || 80;
 var url = process.env.URL || "127.0.0.1";
@@ -31,13 +32,13 @@ var lobbyCount = 0;
 var interval;
 var _modelCount = 4;
 
-var _drawTime = 5000;
-var _compareTime = 5000;
-var _compareTimeOut = 1000;
-var _waitReadyTimeout = 1000;
+var _drawTime = config.get('timers.drawTime') || 5000;
+var _compareTime = config.get('timers.compareTime') || 5000;
+var _compareTimeOut = config.get('timers.compareTimeOut') || 1000;
+var _waitReadyTimeout = config.get('timers.waitReadyTimeout') || 1000;
 
-var _minPlayer = 2;
-var _gameCount = 10;
+var _minPlayer = config.get('game.minPlayer') || 2;
+var _gameCount = config.get('game.gameCount') || 10;
 
 /*===================================
 =            Watch a var            =
@@ -202,7 +203,7 @@ var startGame = function(lobbyId)
 * Stop current game
 *
 **/
-var stopGame = function(lobbyId)
+var stopGame = function(lobbyId,val)
 {
 	var currentLobby = lobbies[lobbyId];
 	clearInterval(currentLobby.interval);
@@ -214,7 +215,7 @@ var stopGame = function(lobbyId)
 	currentLobby.playing = false;
 	currentLobby.full = false;
 	console.log("lobby %s : stop ",lobbyId);
-	emitLobby(lobbyId,'stop');
+	emitLobby(lobbyId,'stop',_minPlayer-val);
 };
 
 /**
@@ -423,7 +424,7 @@ function createLobby()
 		}
 		else
 		{
-			stopGame(this.id);
+			stopGame(this.id,val);
 		}
 		return val;
 	});

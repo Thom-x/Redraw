@@ -207,12 +207,12 @@
 					fillRef(data.index);
 				});
 
-				socket.on('stop',function(index){
+				socket.on('stop',function(remaining){
 					playing = false;
 					$('#game').hide();
 					$('#result').html('');
 					$('#score').hide();
-					$('#message').html("Waiting for players <div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
+					$('#message').html("Waiting for " + remaining + " player" + (remaining > 1 ? "s" : "") + "...<div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
 				});
 
 				socket.on('disconnect', function () {

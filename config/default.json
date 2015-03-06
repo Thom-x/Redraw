@@ -1,0 +1,12 @@
+{
+  "timers" : {
+    "drawTime": 5000,
+    "compareTime": 5000,
+    "compareTimeOut": 1000,
+    "waitReadyTimeout": 1000
+  },
+  "game" : {
+    "minPlayer": 2,
+    "gameCount": 10
+  }
+}
