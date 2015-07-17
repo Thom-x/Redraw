@@ -38,6 +38,7 @@ var _compareTimeOut = config.get('timers.compareTimeOut') || 1000;
 var _waitReadyTimeout = config.get('timers.waitReadyTimeout') || 1000;
 
 var _minPlayer = config.get('game.minPlayer') || 2;
+var _maxPlayer = config.get('game.maxPlayer') || 6;
 var _gameCount = config.get('game.gameCount') || 10;
 
 /*===================================
@@ -112,6 +113,7 @@ io.sockets.on('connect',function(socket) {
 	players[socket.id] = {};
 	players[socket.id].nickname = "Guest";
 	players[socket.id].score = 0;
+	players[socket.id].ready = false;
 
 	lobbyfreeSlot = lobbyAvailable();
 
@@ -126,7 +128,6 @@ io.sockets.on('connect',function(socket) {
 		console.log('Free lobby found');
 		players[socket.id].lobby = lobbyfreeSlot;
 		lobbies[players[socket.id].lobby].players[socket.id] = players[socket.id];
-		lobbies[players[socket.id].lobby].full=1;
 	}
 
 	lobbies[players[socket.id].lobby].v = count(lobbies[players[socket.id].lobby].players);
@@ -393,8 +394,8 @@ function createLobby()
 	console.log("lobby %s : create",lobbyCount);
 	lobbies[lobbyCount] = {};
 	lobbies[lobbyCount].id=lobbyCount;
-	lobbies[lobbyCount].full = 0;
-	lobbies[lobbyCount].playing = 0;
+	lobbies[lobbyCount].full = false;
+	lobbies[lobbyCount].playing = false;
 	lobbies[lobbyCount].v=0;
 	lobbies[lobbyCount].players={};
 	lobbies[lobbyCount].interval=undefined;
@@ -407,7 +408,7 @@ function createLobby()
 	lobbies[lobbyCount].watch('v', function (id,oldval,val) {
 		console.log("lobby %s : %s players to %s",this.id, oldval, val);
 		emitLobby(this.id,'playerChange',val);
-		if(val >=_minPlayer && (oldval<_minPlayer || typeof(oldval) == "undefined"))
+		if(val >=_minPlayer && !this.playing)
 		{
 			for(var currentPlayerIndex in this.players)
 			{
@@ -418,13 +419,18 @@ function createLobby()
 			}
 			getReady(this.id);
 		}
-		else if(val >=_minPlayer && (oldval>=_minPlayer || typeof(oldval) == "undefined"))
+		else if(val >=_minPlayer && this.playing)
 		{
 			// new player wait for new game
 		}
 		else
 		{
+			// not enough players
 			stopGame(this.id,val);
+		}
+
+		if(val >= _maxPlayer) {
+			this.full = true;
 		}
 		return val;
 	});
