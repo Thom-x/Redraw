@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        nodewebkit: {
+        nwjs: {
             options: {
                 build_dir: './dist',
                 winIco: './images/ico.ico',
@@ -47,6 +47,6 @@ module.exports = function(grunt) {
     })
     grunt.loadNpmTasks('grunt-nw-builder');
     grunt.loadNpmTasks('grunt-autoprefixer');
-    grunt.registerTask('default',['nodewebkit']);
+    grunt.registerTask('default',['nwjs']);
     grunt.registerTask('build', ['autoprefixer']);
 };
