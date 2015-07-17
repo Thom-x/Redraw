@@ -45,7 +45,7 @@
 		        <li><a id="playerCount" href="#"></a></li>
 		      </ul>
 		      <div class="navbar-right">
-	      			<a id="github-link" href="https://github.com/Thom-x/Redraw" target="_blank"><img class="github" src="images/github.png" alt=""></a>
+	      			<a id="github-link" href="//github.com/Thom-x/Redraw" target="_blank"><img class="github" src="images/github.png" alt=""></a>
 		      </div>
 	    </div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
@@ -123,9 +123,9 @@
 			try
 			{
 				if(isNode)
-					socket = io.connect('http://' + server.url  + ':' + server.port);
+					socket = io.connect('//' + server.url  + ':' + server.port);
 				else
-					socket = io.connect('http://' + location.origin.replace(/^http(s)?:\/\//, ''));
+					socket = io.connect('//' + location.origin.replace(/^http(s)?:\/\//, ''));
 
 				socket.on("connect",function(){
 					connected = true;
@@ -266,7 +266,7 @@
 			});
 			var server = require('./server.js');
 			var getSocketNode = function(){
-				$.getScript('http://' + server.url + ':' + server.port + '/socket.io/socket.io.js')
+				$.getScript('//' + server.url + ':' + server.port + '/socket.io/socket.io.js')
 				.done(function( script, textStatus ) {
 					launchSocket();
 					var waitingSocket = setInterval(function(){
@@ -287,7 +287,7 @@
 		else
 		{
 			var getSocketNotNode = function(){
-				$.getScript('http://' + location.origin.replace(/^http(s)?:\/\//, '') + '/socket.io/socket.io.js')
+				$.getScript('//' + location.origin.replace(/^http(s)?:\/\//, '') + '/socket.io/socket.io.js')
 				.done(function( script, textStatus ) {
 					launchSocket();
 					var waitingSocket = setInterval(function(){
