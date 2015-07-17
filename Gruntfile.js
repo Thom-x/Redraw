@@ -45,7 +45,7 @@ module.exports = function(grunt) {
             }
           }
     })
-    grunt.loadNpmTasks('grunt-node-webkit-builder');
+    grunt.loadNpmTasks('grunt-nw-builder');
     grunt.loadNpmTasks('grunt-autoprefixer');
     grunt.registerTask('default',['nodewebkit']);
     grunt.registerTask('build', ['autoprefixer']);
