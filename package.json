@@ -44,7 +44,7 @@
     "grunt-cli": "^0.1.13",
     "grunt-autoprefixer": "^2.2.0",
     "grunt-contrib-cssmin": "^0.12.2",
-    "grunt-node-webkit-builder": "^1.0.0",
+    "grunt-nw-builder": "^2.0.0",
     "jshint": "^2.6.0"
   }
 }
