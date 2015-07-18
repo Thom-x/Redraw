@@ -214,3 +214,31 @@ img.loading
 .toast-info {
   background-color: #4AD8BC;
 }
+
+.chat-body
+{
+    background: #EAEAEA;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+li.left, li.right
+{
+	list-style-type: none;
+	margin-bottom: 10px; 
+}
+
+.chat li.left .chat-body
+{
+    margin-left: 60px;
+}
+
+.chat li.right .chat-body
+{
+    margin-right: 60px;
+}
+
+#chat-container {
+	max-height: 50%;
+    overflow-y: auto;
+}

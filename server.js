@@ -2,6 +2,7 @@
 =            Require            =
 ===============================*/
 var express = require("express");
+var moment = require('moment');
 var mustacheExpress = require('mustache-express');
 var config = require('config');
 var app = express();
@@ -128,6 +129,9 @@ io.sockets.on('connect',function(socket) {
 		console.log('Free lobby found');
 		players[socket.id].lobby = lobbyfreeSlot;
 		lobbies[players[socket.id].lobby].players[socket.id] = players[socket.id];
+		lobbies[players[socket.id].lobby].chat.forEach(function(msg){
+			socket.emit('chat', msg);
+		});
 	}
 
 	lobbies[players[socket.id].lobby].v = count(lobbies[players[socket.id].lobby].players);
@@ -137,6 +141,18 @@ io.sockets.on('connect',function(socket) {
 		data.id = socket.id;
 		data.match = ((1-data.misMatchPercentage/100)*100).toFixed();
 		lobbies[players[socket.id].lobby].results.push(data);
+	});
+
+	socket.on('chat',function(data){
+		var msg = {};
+		msg.text = data;
+		msg.nickname = players[socket.id].nickname;
+		msg.date = moment().format('H:mm:ss a');
+		lobbies[players[socket.id].lobby].chat.push(msg);
+		if(lobbies[players[socket.id].lobby].chat.length > 9) {
+			lobbies[players[socket.id].lobby].chat.shift();
+		}
+		emitLobbyExpect(players[socket.id].lobby, 'chat', msg, socket.id);
 	});
 
 	socket.on('ready',function(data){
@@ -263,7 +279,9 @@ function lobbyScore()
 		var currentPlayer = this.results[currentPlayerIndex];
 		if(this.gameCount == 1)
 		{
-			players[currentPlayer.id].score = 0;
+			try{
+				players[currentPlayer.id].score = 0;
+			}catch(e){}
 		}
 		if(currentPlayer.match > bestScore)
 		{
@@ -397,6 +415,7 @@ function createLobby()
 	lobbies[lobbyCount].full = false;
 	lobbies[lobbyCount].playing = false;
 	lobbies[lobbyCount].v=0;
+	lobbies[lobbyCount].chat=[];
 	lobbies[lobbyCount].players={};
 	lobbies[lobbyCount].interval=undefined;
 	lobbies[lobbyCount].intervalCompare=undefined;
@@ -451,6 +470,30 @@ var emitLobby = function (lobbyId, command, data)
 		{
 			try{
 				io.sockets.connected[currentPlayer].emit(command,data);
+			}catch(e)
+			{
+			}
+		}
+	}catch(e)
+	{
+		
+	}
+};
+
+/**
+*
+* Emit socket event to a specified lobby expect one player
+*
+**/
+var emitLobbyExpect = function (lobbyId, command, data, player)
+{
+	try
+	{
+		for(var currentPlayer in lobbies[lobbyId].players)
+		{
+			try{
+				if(currentPlayer !== player)
+					io.sockets.connected[currentPlayer].emit(command,data);
 			}catch(e)
 			{
 			}

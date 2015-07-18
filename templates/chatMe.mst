@@ -1,0 +1,11 @@
+<li class="left clearfix">
+    <div class="chat-body clearfix">
+        <div class="header">
+            <strong class="primary-font">{{nickname}}</strong> <small class="pull-right text-muted">
+                <span class="glyphicon glyphicon-time"></span> {{date}}</small>
+        </div>
+        <p>
+            {{text}}
+        </p>
+    </div>
+</li>

@@ -1,5 +1,5 @@
 <div class="col-md-12 tileContainer">
-	<div class="tile col-xs-12 col-md-6 text-center"><h3>Game found ! Get ready ...</h3></div>
+	<div class="tile col-xs-12 text-center"><h3>Game found ! Get ready ...</h3></div>
 </div>
 {{#players}}
 <div class="tileContainer col-xs-12 col-sm-3">

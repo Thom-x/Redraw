@@ -9,7 +9,7 @@
 	<link rel="icon" href="images/ico.ico" />
 	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="bower_components/toastr/toastr.min.css">
-	<link rel="stylesheet" href="css/style.min.css">
+	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 	<div class="splashscreen text-center">
@@ -53,7 +53,7 @@
 	<div class="container-fluid content">
 		<div id="counter"></div>
 		<div class="row">
-			<div class="col-md-12 text-center"><h2 id="message"></h2></div>
+			<div class="col-md-6 text-center"><h2 id="message"></h2></div>
 			<div class="col-md-6 text-center">
 				<div id="game" class="col-md-12 row">
 					<div class="col-md-12 tileContainer">
@@ -92,6 +92,32 @@
 					<div id="result" class="text-center"></div>
 				</div>
 			</div>
+			<div class="col-md-6">
+				<div class="col-md-12">
+				<div class="col-md-12 tileContainer">
+					<div class="tile col-xs-12 ">
+						    <div class="row">
+				                <div class="panel-heading">
+				                    <span class="glyphicon glyphicon-comment"></span> Chat
+				                </div>
+				                <div class="panel-body">
+				                    <ul id="chat-container" class="chat">
+				                    </ul>
+				                </div>
+				                <div class="panel-footer">
+				                    <div class="input-group">
+				                        <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here...">
+				                        <span class="input-group-btn">
+				                            <button class="btn btn-warning btn-sm" id="btn-chat">
+				                                Send</button>
+				                        </span>
+				                    </div>
+				                </div>
+						    </div>
+					</div>
+				</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script src="node_modules/jquery/dist/jquery.min.js"></script>
@@ -101,6 +127,7 @@
 	<script src="node_modules/mustache/mustache.min.js"></script>
 	<script src="node_modules/cheet.js/cheet.min.js"></script>
 	<script src="bower_components/toastr/toastr.min.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
 	<script src="js/konami.js"></script>
 	<script src="js/canvas-to-blob.min.js"></script>
 	<script>
@@ -162,6 +189,7 @@
 						var rendered = Mustache.render(template,data);
 						$('#message').html(rendered);
 						$('#score').hide();
+						$('#score').parent().hide();
 						$('#result').html('');
 						$("#ready").on("click",function(){
 							if($(this).prop("checked"))
@@ -176,6 +204,7 @@
 				socket.on('results', function(data) {
 					disable($('#canvas2'),'#FFF');
 					$('#score').show();
+					$('#score').parent().show();
 					$.get('templates/result.mst', function(template) {
 						var rendered = Mustache.render(template,data);
 						$('#result').append(rendered);
@@ -190,13 +219,25 @@
 					}
 				});
 
+				socket.on('chat',function(data){
+					$.get('templates/chatOther.mst', function(template) {
+						var rendered = Mustache.render(template,data);
+						$('#chat-container').append(rendered);
+						var bottom = $("#chat-container").children().height() * $("#chat-container").children().length;
+						$("#chat-container").animate({ scrollTop: bottom }, 1000);
+					});
+				});
+
 				socket.on('start',function(data){
 					playing = true;
 					$('body').scrollTo('#topGame', 400,{
 						onAfter:function(){
 							$('#game').show();
+							$('#game').parent().show();
 							$('#message').hide();
+							$('#message').parent().hide();
 							$('#score').hide();
+							$('#score').parent().hide();
 							$('#result').html('');
 						}
 					});
@@ -210,8 +251,9 @@
 				socket.on('stop',function(remaining){
 					playing = false;
 					$('#game').hide();
+					$('#game').parent().hide();
 					$('#result').html('');
-					$('#score').hide();
+					$('#score').parent().hide();
 					$('#message').html("Waiting for " + remaining + " player" + (remaining > 1 ? "s" : "") + "...<div><img class=\"loading\" src=\"images/loading.png\" alt=\"\"></div>").show();
 				});
 
@@ -232,7 +274,9 @@
 		var splashing = true;
 		var isNode = (typeof require !== "undefined");
 		$('#game').hide();
+		$('#game').parent().hide();
 		$('#message').show();
+		$('#message').parent().show();
 		var showGame = function()
 		{
 			$("body").addClass("notNode");
@@ -313,6 +357,37 @@
 				var win = gui.Window.get();
 				win.close(); 
 			}
+		});
+
+		$("#btn-chat").on('click',function(){
+	       addChat();
+		});
+
+		var addChat = function() {
+			var text = $("#btn-input");
+			var textValue = text.val();
+			if(textValue) {
+				socket.emit('chat', textValue);
+				$.get('templates/chatMe.mst', function(template) {
+					var data = {};
+					data.text = textValue;
+					data.date = moment().format('H:mm:ss a');
+					dackname = "You";
+					var rendered = Mustache.render(template,data);
+					$('#chat-container').append(rendered);
+					var bottom = $("#chat-container").children().height() * $("#chat-container").children().length;
+					$("#chat-container").animate({ scrollTop: bottom }, 1000);
+
+				});
+				text.val("");
+			}
+		}
+
+		$("#btn-input").keyup(function(e){
+		    if(e.keyCode == 13)
+		    {
+		       addChat();
+		    }
 		});
 
 		$("#nicknameForm").on('submit',function(e)

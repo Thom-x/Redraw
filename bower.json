@@ -15,6 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "toastr": "~2.1.0"
+    "toastr": "~2.1.0",
+    "moment": "~2.10.3"
   }
 }
