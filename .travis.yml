@@ -1,9 +1,9 @@
 language: node_js
 node_js:
-- "8"
+- '8'
 deploy:
   provider: heroku
-  api_key:
-    secure: "HEojdsn7+/hgeRjv6ZdhFoPOmowEAwOXJtl4WMBHBln8xQAh3Jtmqh6OlYsBjjP6/vNSViR66AK0DZ3AA3+iPAiRCnieGzR+tVv8FD7sKXcmSU7uAL2pMHS1OHIcNimzPgzPj6DVWdWtC7nVLVMOJnOYksdpjhO5M60ih7ms6Ig="
   app:
-    secure: "dVRdHM/Yeo7H3T4VHDTw0DKw4RZE1B/1jEGGcIWWOTXXH1eBqFNVnykfCLbde3S4OzvKJ15zngL+ab+6SbSPtR7i8+xqwQtBfqkIBiDDxlbR3i8BnY/BgGLp+BfWJp8a578qO3jcaIKLkMRsfivxA9Il2EYSr6guh14X1mgUWzs="
+    secure: LbWodAvmlTt5QMg8bnc/fr6D7XLkwG7vhvC0TCuoJQ20qc3RH2wGIs/sauVJ1pKGmMVrSSXkDGt9272pVQ+5hwUgfSkeJOb7zbySHEutaYDhqrPHGQ8KJrxUhPqbvmVgCijI/Gssli+9NQ008nQvVKiq1cCCLB1x0R69ab5PhOo=
+  api_key:
+    secure: U0cMMarXogMhLaSWvMhSeOW2LeT5fCsk4ESF9B4DOfc4GgmgkJT4BMqmSqqionr67pLMFE59eR6j7ZvC8AAHj7DIeRiGCU0O9jumIj7aJc0QS/pK6BGB3/T1Fln/+Hn/bvsskOkujzfGiVAgcU/3J2T/AzSjDmCY08PiulSPQGA=
